@@ -10,7 +10,7 @@ cscope.out
 doc/config/phpdoc.ini
 doc/html
 
-tests/fixtures/doctrine
+tests/fixtures/mongodb
 tests/phpunit.xml
 
 vendor/
