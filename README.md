@@ -2,7 +2,7 @@
 
 A powerful implementation of the [PHPCR API](http://phpcr.github.com).
 
-Jackalope binding for MongoDB. For the moment, it is less feature complete.
+Jackalope binding for MongoDB. Still under heavy development. **Not yet production ready!**
 
 Discuss on jackalope-dev@googlegroups.com
 or visit #jackalope on irc.freenode.net
