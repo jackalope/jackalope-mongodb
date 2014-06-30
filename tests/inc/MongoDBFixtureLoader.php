@@ -17,7 +17,7 @@ class MongoDBFixtureLoader implements \PHPCR\Test\FixtureLoaderInterface
         $this->fixturePath = $fixturePath;
     }
 
-    public function import($file)
+    public function import($file, $workspaceKey = 'workspace')
     {
         // FIXME
         $this->resetDb();

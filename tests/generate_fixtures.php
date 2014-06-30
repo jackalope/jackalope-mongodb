@@ -38,7 +38,7 @@ libxml_use_internal_errors(true);
 
 foreach ($iterator AS $file) {
 
-    if (!$file->isFile()) {
+    if (!$file->isFile() || 'xml' !== $file->getExtension()) {
         continue;
     }
 

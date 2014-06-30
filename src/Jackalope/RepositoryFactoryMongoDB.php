@@ -41,7 +41,7 @@ class RepositoryFactoryMongoDB implements RepositoryFactoryInterface
      * @throws \PHPCR\RepositoryException if no suitable repository is found or another error occurs.
      * @api
      */
-    static public function getRepository(array $parameters = null)
+    public function getRepository(array $parameters = null)
     {
         if (null == $parameters) {
             return null;
@@ -82,7 +82,7 @@ class RepositoryFactoryMongoDB implements RepositoryFactoryInterface
      *
      * @return array hash map of configuration key => english description
      */
-    static public function getConfigurationKeys()
+    public function getConfigurationKeys()
     {
         return array_merge(self::$required, self::$optional);
     }

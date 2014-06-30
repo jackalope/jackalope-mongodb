@@ -53,6 +53,218 @@ use Doctrine\MongoDb\Database;
  */
 class Client extends BaseTransport implements TransportInterface, WritingInterface, WorkspaceManagementInterface, NodeTypeManagementInterface
 {
+    /**
+     * Moves a node from src to dst outside of a transaction
+     *
+     * @param string $srcAbsPath Absolute source path to the node
+     * @param string $dstAbsPath Absolute destination path (must NOT include
+     *      the new node name)
+     *
+     * @link http://www.ietf.org/rfc/rfc2518.txt
+     *
+     * @see \Jackalope\Workspace::moveNode
+     */
+    public function moveNodeImmediately($srcAbsPath, $dstAbsPath)
+    {
+        // TODO: Implement moveNodeImmediately() method.
+    }
+
+    /**
+     * Get the nodes from an array of uuid.
+     *
+     * This is an optimization over getNodeByIdentifier to get many nodes in
+     * one call. If the transport implementation does not optimize, it can just
+     * loop over the uuids and call getNodeByIdentifier repeatedly.
+     *
+     * @param array $identifiers list of uuid to retrieve
+     *
+     * @return array keys are the absolute paths, values is the node data as
+     *      associative array (decoded from json with associative = true). they
+     *      will have the identifier value set.
+     *
+     * @throws \PHPCR\RepositoryException if not logged in
+     */
+    public function getNodesByIdentifier($identifiers)
+    {
+        // TODO: Implement getNodesByIdentifier() method.
+    }
+
+    /**
+     * Get the node from a uuid. Same data format as getNode, but additionally
+     * must have the :jcr:path property.
+     *
+     * @param string $uuid the id in JCR format
+     *
+     * @return array associative array for the node (decoded from json with
+     *      associative = true)
+     *
+     * @throws \PHPCR\ItemNotFoundException if the backend does not know the
+     *      uuid
+     * @throws \PHPCR\NoSuchWorkspaceException if workspace does not exist
+     * @throws \LogicException                 if not logged in
+     */
+    public function getNodeByIdentifier($uuid)
+    {
+        // TODO: Implement getNodeByIdentifier() method.
+    }
+
+    /**
+     * Deletes the workspace with the specified name from the repository,
+     * deleting all content within it.
+     *
+     * @param string $name The name of the workspace.
+     *
+     * @throws \PHPCR\UnsupportedRepositoryOperationException if the repository
+     *      does not support the deletion of workspaces.
+     * @throws \PHPCR\RepositoryException if another error occurs.
+     */
+    public function deleteWorkspace($name)
+    {
+        // TODO: Implement deleteWorkspace() method.
+    }
+
+    /**
+     * Update a node and its children to match its corresponding node in the specified workspace
+     *
+     * @param Node $node the node to update
+     * @param string $srcWorkspace The workspace where the corresponding source node can be found
+     */
+    public function updateNode(Node $node, $srcWorkspace)
+    {
+        // TODO: Implement updateNode() method.
+    }
+
+    /**
+     * Perform a batch of move operations in the order of the passed array
+     *
+     * @param \Jackalope\Transport\MoveNodeOperation[] $operations
+     */
+    public function moveNodes(array $operations)
+    {
+        // TODO: Implement moveNodes() method.
+    }
+
+    /**
+     * Reorder the children of $node as the node said it needs them reordered.
+     *
+     * You can either get the reordering list with getOrderCommands or use
+     * getNodeNames to get the absolute order.
+     *
+     * @param Node $node the node to reorder its children
+     */
+    public function reorderChildren(Node $node)
+    {
+        // TODO: Implement reorderChildren() method.
+    }
+
+    /**
+     * Perform a batch remove operation.
+     *
+     * Take care that cyclic REFERENCE properties of to be deleted nodes do not
+     * lead to errors.
+     *
+     * @param \Jackalope\Transport\RemoveNodeOperation[] $operations
+     */
+    public function deleteNodes(array $operations)
+    {
+        // TODO: Implement deleteNodes() method.
+    }
+
+    /**
+     * Perform a batch remove operation.
+     *
+     * @param \Jackalope\Transport\RemovePropertyOperation[] $operations
+     */
+    public function deleteProperties(array $operations)
+    {
+        // TODO: Implement deleteProperties() method.
+    }
+
+    /**
+     * Deletes a node and the whole subtree under it outside of a transaction
+     *
+     * @param string $path Absolute path to the node
+     *
+     * @see \Jackalope\Workspace::removeItem
+     *
+     * @throws \PHPCR\PathNotFoundException if the item is already deleted on
+     *      the server. This should not happen if ObjectManager is correctly
+     *      checking.
+     * @throws \PHPCR\RepositoryException if not logged in or another error occurs
+     */
+    public function deleteNodeImmediately($path)
+    {
+        // TODO: Implement deleteNodeImmediately() method.
+    }
+
+    /**
+     * Deletes a property outside of a transaction
+     *
+     * @param string $path Absolute path to the property
+     *
+     * @see \Jackalope\Workspace::removeItem
+     *
+     * @throws \PHPCR\PathNotFoundException if the item is already deleted on
+     *      the server. This should not happen if ObjectManager is correctly
+     *      checking.
+     * @throws \PHPCR\RepositoryException if not logged in or another error occurs
+     */
+    public function deletePropertyImmediately($path)
+    {
+        // TODO: Implement deletePropertyImmediately() method.
+    }
+
+    /**
+     * Store all nodes in the AddNodeOperations
+     *
+     * Transport stores the node at its path, with all properties (but do not
+     * store children).
+     *
+     * The transport is responsible to ensure that the node is valid and
+     * has to generate autocreated properties.
+     *
+     * Note: Nodes in the log may be deleted if they are deleted. The delete
+     * request will be passed later, according to the log. You should still
+     * create it here as it might be used temporarily in move operations or
+     * such. Use Node::getPropertiesForStoreDeletedNode in that case to avoid
+     * a status check of the deleted node.
+     *
+     * @see BaseTransport::validateNode
+     *
+     * @param \Jackalope\Transport\AddNodeOperation[] $operations the operations containing the nodes to store
+     *
+     * @throws \PHPCR\RepositoryException if not logged in or another error occurs
+     */
+    public function storeNodes(array $operations)
+    {
+        // TODO: Implement storeNodes() method.
+    }
+
+    /**
+     * Update the properties of a node
+     *
+     * @param Node $node the node to update
+     */
+    public function updateProperties(Node $node)
+    {
+        // TODO: Implement updateProperties() method.
+    }
+
+    /**
+     * Called before any data is written.
+     */
+    public function prepareSave()
+    {
+        // TODO: Implement prepareSave() method.
+    }
+
+    /**
+     * Called if a save operation caused an exception.
+     */
+    public function rollbackSave()
+    {
+        // TODO: Implement rollbackSave() method.
+    }
 
     /**
      * Name of MongoDB workspace collection.
@@ -411,7 +623,7 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
     /**
      * {@inheritDoc}
      */
-    public function getNodePathForIdentifier($uuid)
+    public function getNodePathForIdentifier($uuid, $workspace = null)
     {
         $this->assertLoggedIn();
 
