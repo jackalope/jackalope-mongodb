@@ -73,6 +73,11 @@ class ImplementationLoader extends \PHPCR\Test\AbstractLoader
 
     }
 
+    public function prepareAnonymousLogin()
+    {
+        return false;
+    }
+
     public static function getInstance()
     {
         if (null === self::$instance) {
