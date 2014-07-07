@@ -431,8 +431,10 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
     /**
      * {@inheritDoc}
      */
-    public function login(\PHPCR\CredentialsInterface $credentials = null, $workspaceName = 'default')
+    public function login(\PHPCR\CredentialsInterface $credentials = null, $workspaceNameRaw = 'default')
     {
+        $workspaceName = null === $workspaceNameRaw ? 'default' : $workspaceNameRaw;
+
         $this->credentials = $credentials;
         $this->workspaceName = $workspaceName;
 
