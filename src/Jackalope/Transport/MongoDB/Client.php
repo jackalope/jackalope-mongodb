@@ -1618,7 +1618,7 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
     {
         if (!(strpos($path, '//') === false
             && strpos($path, '/../') === false
-            && preg_match('/^[\w{}\/#:^+~*\[\]\. -]*$/i', $path))
+            && preg_match('/^[\w{}\/#%&;:^+~*\[\]\. -]*$/iu', $path))
         ) {
             throw new \PHPCR\RepositoryException('Path is not well-formed or contains invalid characters: ' . $path);
         }
