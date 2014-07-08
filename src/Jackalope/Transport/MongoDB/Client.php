@@ -86,7 +86,27 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
      */
     public function getNodesByIdentifier($identifiers)
     {
-        // TODO: Implement getNodesByIdentifier() method.
+        $this->assertLoggedIn();
+
+        $binaryIdentifiers = array();
+        foreach ($identifiers as $identifier) {
+            $binaryIdentifiers[] = new \MongoBinData($identifier, \MongoBinData::UUID);
+        }
+
+        $coll = $this->db->selectCollection(self::COLLNAME_NODES);
+        $qb = $coll
+            ->createQueryBuilder()
+            ->field('w_id')->equals($this->workspaceId)
+            ->field('_id')->in($binaryIdentifiers)
+        ;
+        $queryResult = $qb->getQuery()->execute();
+
+        $nodes = array();
+        foreach($queryResult as $entry) {
+            $nodes[$entry['path']] = $this->getNode($entry['path']);
+        }
+
+        return $nodes;
     }
 
     /**
