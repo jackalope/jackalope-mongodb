@@ -125,7 +125,26 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
      */
     public function getNodeByIdentifier($uuid)
     {
-        // TODO: Implement getNodeByIdentifier() method.
+        // throw new \LogicException();
+        $this->assertLoggedIn();
+
+        if (!$this->isWorkspaceAvailable()) {
+            throw new \PHPCR\NoSuchWorkspaceException();
+        }
+
+        $coll = $this->db->selectCollection(self::COLLNAME_NODES);
+        $qb = $coll
+            ->createQueryBuilder()
+            ->field('w_id')->equals($this->workspaceId)
+            ->field('_id')->equals(new \MongoBinData($uuid, \MongoBinData::UUID))
+        ;
+        $entry = $qb->getQuery()->getSingleResult();
+
+        if (!$entry || !array_key_exists('path', $entry) || !$node = $this->getNode($entry['path'])) {
+            throw new \PHPCR\ItemNotFoundException();
+        }
+
+        return $node;
     }
 
     /**
@@ -1668,5 +1687,16 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
     public function finishSave()
     {
 
+    }
+
+    protected function isWorkspaceAvailable()
+    {
+        $workspaceColl = $this->db->selectCollection(self::COLLNAME_WORKSPACES);
+        $qb = $workspaceColl->createQueryBuilder()
+            ->field('_id')->equals($this->workspaceId)
+        ;
+        $workspace = $qb->getQuery()->getSingleResult();
+
+        return null !== $workspace;
     }
 }
