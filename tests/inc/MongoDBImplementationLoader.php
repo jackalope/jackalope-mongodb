@@ -73,9 +73,18 @@ class ImplementationLoader extends \PHPCR\Test\AbstractLoader
 
     }
 
+    /**
+     * Make the repository ready for login with null credentials, handling the
+     * case where authentication is passed outside the login method.
+     *
+     * If the implementation does not support this feature, it must return
+     * false for this method, otherwise true.
+     *
+     * @return boolean true if anonymous login is supposed to work
+     */
     public function prepareAnonymousLogin()
     {
-        return false;
+        return true;
     }
 
     public static function getInstance()
