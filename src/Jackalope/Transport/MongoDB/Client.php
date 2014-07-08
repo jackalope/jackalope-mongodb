@@ -495,7 +495,7 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
 
         $this->loggedIn = true;
 
-        return true;
+        return $workspaceName;
     }
 
     /**
