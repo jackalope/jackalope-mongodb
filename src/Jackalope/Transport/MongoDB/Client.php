@@ -1699,4 +1699,24 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
 
         return null !== $workspace;
     }
+
+    protected function fetchBooleanPropertyValue($source)
+    {
+        $booleanValue = $source;
+
+        if (is_bool($booleanValue)) {
+            return $booleanValue;
+        }
+
+        if (is_string($booleanValue)) {
+            $booleanValue = strtolower(trim($booleanValue));
+            if ('true' === $booleanValue) {
+                $booleanValue = true;
+            } elseif ('false' === $booleanValue) {
+                $booleanValue = false;
+            }
+        }
+
+        return (boolean) $booleanValue;
+    }
 }
