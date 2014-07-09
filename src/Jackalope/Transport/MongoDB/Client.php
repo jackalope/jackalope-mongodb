@@ -596,7 +596,7 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
                 } else {
                     $data->{":" . $name} = $prop['value'];
                 }
-            } else if ($type == \PHPCR\PropertyType::TYPENAME_DATE) {
+            } elseif ($type == \PHPCR\PropertyType::TYPENAME_DATE) {
                 if (isset($prop['multi']) && $prop['multi'] == true) {
                     foreach ($prop['value'] as $value) {
                         $date = new \DateTime(date('Y-m-d H:i:s', $value['date']->sec), new \DateTimeZone($value['timezone']));
@@ -607,6 +607,18 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
                     $data->{$name} = $date->format('c');
                 }
 
+                $data->{":" . $name} = $type;
+            } elseif ($type == \PHPCR\PropertyType::TYPENAME_BOOLEAN) {
+                if (isset($prop['multi']) && $prop['multi'] == true) {
+                    $booleanValue = array();
+                    foreach ($prop['value'] as $booleanEntry)
+                        $booleanValue[] = $this->fetchBooleanPropertyValue($booleanEntry);
+                    ;
+                } else {
+                    $booleanValue = $this->fetchBooleanPropertyValue($prop['value']);
+                }
+
+                $data->{$name} = $booleanValue;
                 $data->{":" . $name} = $type;
             } else {
                 if (isset($prop['multi']) && $prop['multi'] == true) {
