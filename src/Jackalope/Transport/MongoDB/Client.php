@@ -579,9 +579,6 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
 
         $data = new \stdClass();
 
-        if ($node['_id'] instanceof \MongoBinData) {
-            $data->{'jcr:uuid'} = $node['_id']->bin;
-        }
         $data->{'jcr:primaryType'} = $node['type'];
 
         foreach ($node['props'] as $prop) {
@@ -629,6 +626,18 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
                     $data->{$name} = $prop['value'];
                 }
                 $data->{":" . $name} = $type;
+            }
+        }
+
+        // If the node is referenceable, return jcr:uuid.
+        if (isset($data->{"jcr:mixinTypes"})) {
+            foreach ((array) $data->{"jcr:mixinTypes"} as $mixin) {
+                if ($this->nodeTypeManager->getNodeType($mixin)->isNodeType('mix:referenceable')) {
+                    if ($node['_id'] instanceof \MongoBinData) {
+                        $data->{'jcr:uuid'} = $node['_id']->bin;
+                        break;
+                    }
+                }
             }
         }
 
