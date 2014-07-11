@@ -29,7 +29,6 @@ class ImplementationLoader extends \PHPCR\Test\AbstractLoader
             'PermissionsAndCapabilities',
             'Import',
             'Observation',
-            'WorkspaceManagement',
             'ShareableNodes',
             'Versioning',
             'AccessControlManagement',
@@ -69,6 +68,9 @@ class ImplementationLoader extends \PHPCR\Test\AbstractLoader
 
             'Writing\\NamespaceRegistryTest::testRegisterUnregisterNamespace',
             'Writing\\CopyMethodsTest::testCopyUpdateOnCopy',
+
+            'WorkspaceManagement\\WorkspaceManagementTest::testCreateWorkspaceWithSource',
+            'WorkspaceManagement\\WorkspaceManagementTest::testCreateWorkspaceWithInvalidSource',
         );
 
     }
