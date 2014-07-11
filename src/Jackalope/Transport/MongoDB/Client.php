@@ -159,6 +159,8 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
      */
     public function deleteWorkspace($name)
     {
+        $this->assertLoggedIn();
+
         $descriptors = $this->getRepositoryDescriptors();
         $supports = array_key_exists('option.workspace.management.supported', $descriptors) &&
                     true === $descriptors['option.workspace.management.supported']
