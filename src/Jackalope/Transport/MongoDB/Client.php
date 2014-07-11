@@ -159,7 +159,53 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
      */
     public function deleteWorkspace($name)
     {
-        // TODO: Implement deleteWorkspace() method.
+        $descriptors = $this->getRepositoryDescriptors();
+        $supports = array_key_exists('option.workspace.management.supported', $descriptors) &&
+                    true === $descriptors['option.workspace.management.supported']
+        ;
+        if (!$supports) {
+            throw new \PHPCR\UnsupportedRepositoryOperationException();
+        }
+
+        $workspaceColl = $this->db->selectCollection(self::COLLNAME_WORKSPACES);
+        $nodeColl = $this->db->selectCollection(self::COLLNAME_NODES);
+
+        $qb = $workspaceColl->createQueryBuilder()
+            ->field('name')->equals($name)
+        ;
+        $workspace = $qb->getQuery()->getSingleResult();
+        if (!$workspace) {
+            throw new \PHPCR\RepositoryException(sprintf('Workspace "%s" cannot be deleted as it does not exist', $name));
+        }
+
+        $deleteNodesQuery = $nodeColl->createQueryBuilder()
+            ->field('w_id')->equals($workspace['_id'])
+            ->remove()
+            ->multiple(true)
+        ;
+        try {
+            $deleteNodesQuery->getQuery()->execute();
+        } catch (\Exception $e) {
+            throw new \PHPCR\RepositoryException(
+                sprintf('Could not delete nodes in workspace "%s": "%s"', $name, $e->getMessage()),
+                0,
+                $e
+            );
+        }
+
+        $deleteWorkspaceQuery = $workspaceColl->createQueryBuilder()
+            ->field('name')->equals($name)
+            ->remove()
+        ;
+        try {
+            $deleteWorkspaceQuery->getQuery()->execute();
+        } catch (\Exception $e) {
+            throw new \PHPCR\RepositoryException(
+                sprintf('Could not delete already empty workspace "%s": "%s"', $name, $e->getMessage()),
+                0,
+                $e
+            );
+        }
     }
 
     /**
