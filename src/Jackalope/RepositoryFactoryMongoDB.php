@@ -18,11 +18,11 @@ use PHPCR\RepositoryFactoryInterface;
  */
 class RepositoryFactoryMongoDB implements RepositoryFactoryInterface
 {
-    static private $required = array(
+    private static $required = array(
         'jackalope.mongodb_database' => '\Doctrine\MongoDB\Database (required): mongodb database instance',
     );
 
-    static private $optional = array(
+    private static $optional = array(
         'jackalope.factory'                => 'string or object: Use a custom factory class for Jackalope objects',
         'jackalope.disable_transactions'   => 'boolean: If set and not empty, transactions are disabled, otherwise transactions are enabled',
         'jackalope.disable_stream_wrapper' => 'boolean: If set and not empty, stream wrapper is disabled, otherwise the stream wrapper is enabled',
@@ -34,10 +34,10 @@ class RepositoryFactoryMongoDB implements RepositoryFactoryInterface
      *
      *
      *
-     * @param array|null $parameters string key/value pairs as repository arguments or null if a client wishes
-     *                               to connect to a default repository.
+     * @param  array|null                 $parameters string key/value pairs as repository arguments or null if a client wishes
+     *                                                to connect to a default repository.
      * @return \PHPCR\RepositoryInterface a repository instance or null if this implementation does
-     *                                    not understand the passed parameters
+     *                                               not understand the passed parameters
      * @throws \PHPCR\RepositoryException if no suitable repository is found or another error occurs.
      * @api
      */
@@ -71,6 +71,7 @@ class RepositoryFactoryMongoDB implements RepositoryFactoryInterface
 
         $options['transactions'] = empty($parameters['jackalope.disable_transactions']);
         $options['stream_wrapper'] = empty($parameters['jackalope.disable_stream_wrapper']);
+
         return new Repository($factory, $transport, $options);
     }
 

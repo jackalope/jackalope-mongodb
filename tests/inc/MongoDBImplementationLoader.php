@@ -94,12 +94,14 @@ class ImplementationLoader extends \PHPCR\Test\AbstractLoader
         if (null === self::$instance) {
             self::$instance = new ImplementationLoader();
         }
+
         return self::$instance;
     }
 
     public function getRepositoryFactoryParameters()
     {
         global $db; // initialized in bootstrap.php
+
         return array('jackalope.mongodb_database' => $db);
     }
 
@@ -123,10 +125,11 @@ class ImplementationLoader extends \PHPCR\Test\AbstractLoader
         return $GLOBALS['phpcr.user'];
     }
 
-    function getFixtureLoader()
+    public function getFixtureLoader()
     {
         global $db; // initialized in bootstrap.php
-        require_once "MongoDBFixtureLoader.php";
+        require_once 'MongoDBFixtureLoader.php';
+
         return new \MongoDBFixtureLoader($db, __DIR__ . "/../fixtures/mongodb/");
     }
 }

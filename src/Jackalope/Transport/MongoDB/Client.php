@@ -40,14 +40,19 @@ use Jackalope\NotImplementedException;
 /**
  * @author Thomas Schedler <thomas@chirimoya.at>
  */
-class Client extends BaseTransport implements TransportInterface, WritingInterface, WorkspaceManagementInterface, NodeTypeManagementInterface
+class Client
+    extends BaseTransport
+    implements TransportInterface,
+               WritingInterface,
+               WorkspaceManagementInterface,
+               NodeTypeManagementInterface
 {
     /**
      * Moves a node from src to dst outside of a transaction
      *
      * @param string $srcAbsPath Absolute source path to the node
      * @param string $dstAbsPath Absolute destination path (must NOT include
-     *      the new node name)
+     *                           the new node name)
      *
      * @link http://www.ietf.org/rfc/rfc2518.txt
      *
@@ -59,17 +64,17 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
     }
 
     /**
-     * Get the nodes from an array of uuid.
+     * Get the nodes from an array of uuid
      *
      * This is an optimization over getNodeByIdentifier to get many nodes in
      * one call. If the transport implementation does not optimize, it can just
-     * loop over the uuids and call getNodeByIdentifier repeatedly.
+     * loop over the uuids and call getNodeByIdentifier repeatedly
      *
      * @param array $identifiers list of uuid to retrieve
      *
      * @return array keys are the absolute paths, values is the node data as
-     *      associative array (decoded from json with associative = true). they
-     *      will have the identifier value set.
+     *               associative array (decoded from json with associative = true). they
+     *               will have the identifier value set.
      *
      * @throws \PHPCR\RepositoryException if not logged in
      */
@@ -91,7 +96,7 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
         $queryResult = $qb->getQuery()->execute();
 
         $nodes = array();
-        foreach($queryResult as $entry) {
+        foreach ($queryResult as $entry) {
             $nodes[$entry['path']] = $this->getNode($entry['path']);
         }
 
@@ -100,21 +105,20 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
 
     /**
      * Get the node from a uuid. Same data format as getNode, but additionally
-     * must have the :jcr:path property.
+     * must have the :jcr:path property
      *
      * @param string $uuid the id in JCR format
      *
      * @return array associative array for the node (decoded from json with
-     *      associative = true)
+     *               associative = true)
      *
-     * @throws \PHPCR\ItemNotFoundException if the backend does not know the
-     *      uuid
+     * @throws \PHPCR\ItemNotFoundException    if the backend does not know the
+     *                                         uuid
      * @throws \PHPCR\NoSuchWorkspaceException if workspace does not exist
      * @throws \LogicException                 if not logged in
      */
     public function getNodeByIdentifier($uuid)
     {
-        // throw new \LogicException();
         $this->assertLoggedIn();
 
         if (!$this->isWorkspaceAvailable()) {
@@ -138,13 +142,14 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
 
     /**
      * Deletes the workspace with the specified name from the repository,
-     * deleting all content within it.
+     * deleting all content within it
      *
-     * @param string $name The name of the workspace.
+     * @param string $name The name of the workspace
      *
      * @throws \PHPCR\UnsupportedRepositoryOperationException if the repository
-     *      does not support the deletion of workspaces.
-     * @throws \PHPCR\RepositoryException if another error occurs.
+     *                                                        does not support the deletion of workspaces
+     * @throws \PHPCR\RepositoryException                     if another error occurs
+     * @throws \PHPCR\RepositoryException                     if not logged in
      */
     public function deleteWorkspace($name)
     {
@@ -202,7 +207,7 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
     /**
      * Update a node and its children to match its corresponding node in the specified workspace
      *
-     * @param Node $node the node to update
+     * @param Node   $node         the node to update
      * @param string $srcWorkspace The workspace where the corresponding source node can be found
      */
     public function updateNode(Node $node, $srcWorkspace)
@@ -221,10 +226,10 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
     }
 
     /**
-     * Reorder the children of $node as the node said it needs them reordered.
+     * Reorder the children of $node as the node said it needs them reordered
      *
      * You can either get the reordering list with getOrderCommands or use
-     * getNodeNames to get the absolute order.
+     * getNodeNames to get the absolute order
      *
      * @param Node $node the node to reorder its children
      */
@@ -234,10 +239,10 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
     }
 
     /**
-     * Perform a batch remove operation.
+     * Perform a batch remove operation
      *
      * Take care that cyclic REFERENCE properties of to be deleted nodes do not
-     * lead to errors.
+     * lead to errors
      *
      * @param \Jackalope\Transport\RemoveNodeOperation[] $operations
      */
@@ -247,7 +252,7 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
     }
 
     /**
-     * Perform a batch remove operation.
+     * Perform a batch remove operation
      *
      * @param \Jackalope\Transport\RemovePropertyOperation[] $operations
      */
@@ -264,9 +269,9 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
      * @see \Jackalope\Workspace::removeItem
      *
      * @throws \PHPCR\PathNotFoundException if the item is already deleted on
-     *      the server. This should not happen if ObjectManager is correctly
-     *      checking.
-     * @throws \PHPCR\RepositoryException if not logged in or another error occurs
+     *                                      the server. This should not happen if ObjectManager is correctly
+     *                                      checking
+     * @throws \PHPCR\RepositoryException   if not logged in or another error occurs
      */
     public function deleteNodeImmediately($path)
     {
@@ -281,9 +286,9 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
      * @see \Jackalope\Workspace::removeItem
      *
      * @throws \PHPCR\PathNotFoundException if the item is already deleted on
-     *      the server. This should not happen if ObjectManager is correctly
-     *      checking.
-     * @throws \PHPCR\RepositoryException if not logged in or another error occurs
+     *                                      the server. This should not happen if ObjectManager is correctly
+     *                                      checking
+     * @throws \PHPCR\RepositoryException   if not logged in or another error occurs
      */
     public function deletePropertyImmediately($path)
     {
@@ -294,16 +299,16 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
      * Store all nodes in the AddNodeOperations
      *
      * Transport stores the node at its path, with all properties (but do not
-     * store children).
+     * store children)
      *
      * The transport is responsible to ensure that the node is valid and
-     * has to generate autocreated properties.
+     * has to generate autocreated properties
      *
      * Note: Nodes in the log may be deleted if they are deleted. The delete
      * request will be passed later, according to the log. You should still
      * create it here as it might be used temporarily in move operations or
      * such. Use Node::getPropertiesForStoreDeletedNode in that case to avoid
-     * a status check of the deleted node.
+     * a status check of the deleted node
      *
      * @see BaseTransport::validateNode
      *
@@ -327,7 +332,7 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
     }
 
     /**
-     * Called before any data is written.
+     * Called before any data is written
      */
     public function prepareSave()
     {
@@ -335,7 +340,7 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
     }
 
     /**
-     * Called if a save operation caused an exception.
+     * Called if a save operation caused an exception
      */
     public function rollbackSave()
     {
@@ -343,21 +348,21 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
     }
 
     /**
-     * Name of MongoDB workspace collection.
+     * Name of MongoDB workspace collection
      *
      * @var string
      */
     const COLLNAME_WORKSPACES = 'phpcr_workspaces';
 
     /**
-     * Name of MongoDB namespace collection.
+     * Name of MongoDB namespace collection
      *
      * @var string
      */
     const COLLNAME_NAMESPACES = 'phpcr_namespaces';
 
     /**
-     * Name of MongoDB node collection.
+     * Name of MongoDB node collection
      *
      * @var string
      */
@@ -417,10 +422,10 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
     private $db;
 
     /**
-     * Create a MongoDB transport layer.
+     * Create a MongoDB transport layer
      *
-     * @param object $factory   An object factory implementing "get" as described in \Jackalope\Factory.
-     * @param Doctrine\MongoDB\Database $db
+     * @param object                     $factory An object factory implementing "get" as described in \Jackalope\Factory
+     * @param \Doctrine\MongoDB\Database $db
      */
     public function __construct($factory, \Doctrine\MongoDB\Database $db)
     {
@@ -501,6 +506,7 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
         foreach ($workspaces AS $workspace) {
             $names[] = $workspace['name'];
         }
+
         return $names;
     }
 
@@ -536,7 +542,7 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
     }
 
     /**
-     * Assert logged in.
+     * Assert logged in
      *
      * @return void
      *
@@ -738,6 +744,7 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
         if (empty($node)) {
             throw new \PHPCR\ItemNotFoundException('No item found with uuid ' . $uuid . '.');
         }
+
         return $node['path'];
     }
 
@@ -762,6 +769,7 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
         $stream = fopen('php://memory', 'rwb+');
         fwrite($stream, $binary->getBytes());
         rewind($stream);
+
         return $stream;
     }
 
@@ -782,12 +790,12 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
     }
 
     /**
-     * Returns the path of all accessible reference properties in the workspace that point to the node.
-     * If $weakReference is false (default) only the REFERENCE properties are returned, if it is true, only WEAKREFERENCEs.
+     * Returns the path of all accessible reference properties in the workspace that point to the node
+     * If $weakReference is false (default) only the REFERENCE properties are returned, if it is true, only WEAKREFERENCEs
      *
-     * @param string $path
-     * @param string $name name of referring WEAKREFERENCE properties to be returned; if null then all referring WEAKREFERENCEs are returned
-     * @param boolean $weakReference If true return only WEAKREFERENCEs, otherwise only REFERENCEs
+     * @param  string  $path
+     * @param  string  $name          name of referring WEAKREFERENCE properties to be returned; if null then all referring WEAKREFERENCEs are returned
+     * @param  boolean $weakReference If true return only WEAKREFERENCEs, otherwise only REFERENCEs
      * @return array
      *
      * @throws \PHPCR\ItemNotFoundException
@@ -860,7 +868,7 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
     }
 
     /**
-     * Fetch all user-defined node-type definition.
+     * Fetch all user-defined node-type definition
      *
      * @return array
      */
@@ -875,7 +883,7 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
     /**
      * {@inheritDoc}
      */
-    function query(\PHPCR\Query\QueryInterface $query)
+    public function query(\PHPCR\Query\QueryInterface $query)
     {
         switch ($query->getLanguage()) {
             case \PHPCR\Query\QueryInterface::JCR_SQL2:
@@ -1034,6 +1042,7 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
             if (count($this->getReferences($path)) > 0) {
                 throw new \PHPCR\ReferentialIntegrityException('Cannot delete item at path "' . $path . '", ' .
                     'there is at least one item with a reference to this or a subnode of the path.');
+
                 return false;
             }
 
@@ -1208,7 +1217,6 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
 
         $properties = $node->getProperties();
 
-
         return true;
     }
 
@@ -1258,7 +1266,7 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
     }
 
     /**
-     * Validation if all the data is correct before writing it into the database.
+     * Validation if all the data is correct before writing it into the database
      *
      * @param \PHPCR\PropertyInterface $property
      *
@@ -1453,7 +1461,7 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
     /**
      * {@inheritDoc}
      */
-    function unregisterNamespace($prefix)
+    public function unregisterNamespace($prefix)
     {
         $coll = $this->db->selectCollection(self::COLLNAME_NAMESPACES);
         $qb = $coll->createQueryBuilder()
@@ -1507,9 +1515,9 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
     // private|protected helper methods //
 
     /**
-     * Get workspace Id.
+     * Get workspace Id
      *
-     * @param string $workspaceName
+     * @param  string      $workspaceName
      * @return string|bool
      */
     private function getWorkspaceId($workspaceName)
@@ -1526,9 +1534,9 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
     }
 
     /**
-     * Checks if path exists.
+     * Checks if path exists
      *
-     * @param string $path
+     * @param  string $path
      * @return bool
      */
     private function pathExists($path)
@@ -1544,17 +1552,18 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
         if (!$query->getSingleResult()) {
             return false;
         }
+
         return true;
     }
 
     /**
      * TODO: we should move that into the common Jackalope BaseTransport or as new method of NodeType
-     * it will be helpful for other implementations.
+     * it will be helpful for other implementations
      *
      * Validate this node with the nodetype and generate not yet existing
-     * autogenerated properties as necessary.
+     * autogenerated properties as necessary
      *
-     * @param Node $node
+     * @param Node     $node
      * @param NodeType $def
      */
     private function validateNode(Node $node, NodeType $def)
@@ -1648,11 +1657,11 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
     }
 
     /**
-     * Validation if all the data is correct before writing it into the database.
+     * Validation if all the data is correct before writing it into the database
      *
-     * @param int $type
-     * @param mixed $value
-     * @param string $path
+     * @param  int    $type
+     * @param  mixed  $value
+     * @param  string $path
      * @return void
      *
      * @throws \PHPCR\ValueFormatException
@@ -1668,11 +1677,11 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
                     throw new \PHPCR\ValueFormatException("Invalid JCR NAME at " . $path . ": The namespace prefix " . $prefix . " does not exist.");
                 }
             }
-        } else if ($type === \PHPCR\PropertyType::PATH) {
+        } elseif ($type === \PHPCR\PropertyType::PATH) {
             if (!preg_match('((/[a-zA-Z0-9:_-]+)+)', $value)) {
                 throw new \PHPCR\ValueFormatException("Invalid PATH at " . $path . ": Segments are seperated by / and allowed chars are a-zA-Z0-9:_-");
             }
-        } else if ($type === \PHPCR\PropertyType::URI) {
+        } elseif ($type === \PHPCR\PropertyType::URI) {
             if (!preg_match(self::VALIDATE_URI_RFC3986, $value)) {
                 throw new \PHPCR\ValueFormatException("Invalid URI at " . $path . ": Has to follow RFC 3986.");
             }
@@ -1680,7 +1689,7 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
     }
 
     /**
-     * Get parent path of a path.
+     * Get parent path of a path
      *
      * @param  string $path
      * @return string
@@ -1688,11 +1697,12 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
     protected function getParentPath($path)
     {
         $parentPath = implode('/', array_slice(explode('/', $path), 0, -1));
+
         return ($parentPath != '') ? $parentPath : '/';
     }
 
     /**
-     * Validate path.
+     * Validate path
      *
      * @param $path
      * @return string
@@ -1705,7 +1715,7 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
     }
 
     /**
-     * Ensure path is valid.
+     * Ensure path is valid
      *
      * @param $path
      *
@@ -1722,11 +1732,11 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
     }
 
     /**
-     * Return the permissions of the current session on the node given by path.
-     * The result of this function is an array of zero, one or more strings from add_node, read, remove, set_property.
+     * Return the permissions of the current session on the node given by path
+     * The result of this function is an array of zero, one or more strings from add_node, read, remove, set_property
      *
-     * @param string $path the path to the node we want to check
-     * @return array of string
+     * @param  string $path the path to the node we want to check
+     * @return array  of string
      */
     public function getPermissions($path)
     {
