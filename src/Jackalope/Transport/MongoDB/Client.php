@@ -24,29 +24,18 @@ namespace Jackalope\Transport\MongoDB;
 
 use PHPCR\PropertyType;
 use PHPCR\RepositoryException;
-use PHPCR\CredentialsInterface;
-use PHPCR\PropertyInterface;
-use PHPCR\NodeInterface;
 use PHPCR\Util\UUIDHelper;
-use PHPCR\Util\QOM\Sql2ToQomQueryConverter;
 
 use Jackalope\Node;
 use Jackalope\Property;
-use Jackalope\Query\Query;
 use Jackalope\Transport\BaseTransport;
 use Jackalope\Transport\TransportInterface;
-use Jackalope\Transport\QueryInterface;
 use Jackalope\Transport\WritingInterface;
 use Jackalope\Transport\WorkspaceManagementInterface;
 use Jackalope\Transport\NodeTypeManagementInterface;
 use Jackalope\Transport\StandardNodeTypes;
-use Jackalope\NodeType\NodeTypeManager;
 use Jackalope\NodeType\NodeType;
 use Jackalope\NotImplementedException;
-use Jackalope\FactoryInterface;
-
-use Doctrine\MongoDb\Connection;
-use Doctrine\MongoDb\Database;
 
 /**
  * @author Thomas Schedler <thomas@chirimoya.at>
@@ -433,7 +422,7 @@ class Client extends BaseTransport implements TransportInterface, WritingInterfa
      * @param object $factory   An object factory implementing "get" as described in \Jackalope\Factory.
      * @param Doctrine\MongoDB\Database $db
      */
-    public function __construct($factory, Database $db)
+    public function __construct($factory, \Doctrine\MongoDB\Database $db)
     {
         $this->factory = $factory;
         $this->db = $db;
