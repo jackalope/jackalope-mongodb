@@ -12,7 +12,7 @@
     "authors": [
         {
             "name": "Jackalope Community",
-            "homepage": "https://github.com/jackalope/jackalope-jackrabbit/contributors"
+            "homepage": "https://github.com/jackalope/jackalope-mongodb/contributors"
         }
     ],
     "require": {
