@@ -258,7 +258,7 @@ class Client
             }
 
             // catch something?
-            $this->deleteNode($operation->node->getPath());
+            $this->deleteNode($operation->srcPath);
         }
     }
 
@@ -1037,9 +1037,6 @@ class Client
         throw new NotImplementedException("Moving nodes is not yet implemented");
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function deleteNode($path)
     {
         $this->assertLoggedIn();
