@@ -269,7 +269,13 @@ class Client
      */
     public function deleteProperties(array $operations)
     {
-        // TODO: Implement deleteProperties() method.
+        $this->assertLoggedIn();
+
+        foreach ($operations as $operation) {
+            $this->deleteProperty($operation->srcPath);
+        }
+
+        return true;
     }
 
     /**
