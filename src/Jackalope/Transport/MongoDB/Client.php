@@ -248,7 +248,18 @@ class Client
      */
     public function deleteNodes(array $operations)
     {
-        // TODO: Implement deleteNodes() method.
+        $this->assertLoggedIn();
+
+        foreach ($operations as $operation) {
+            if (! $operation instanceof \Jackalope\Transport\RemoveNodeOperation ||
+                \Jackalope\Transport\Operation::REMOVE_NODE !== $operation->type
+            ) {
+                continue;
+            }
+
+            // catch something?
+            $this->deleteNode($operation->node->getPath());
+        }
     }
 
     /**
@@ -275,7 +286,7 @@ class Client
      */
     public function deleteNodeImmediately($path)
     {
-        // TODO: Implement deleteNodeImmediately() method.
+        $this->deleteNode($path);
     }
 
     /**
@@ -1031,8 +1042,12 @@ class Client
      */
     public function deleteNode($path)
     {
-        $path = $this->validatePath($path);
         $this->assertLoggedIn();
+
+        if ('/' == $path) {
+            throw new \PHPCR\NodeType\ConstraintViolationException('You can not delete the root node of a repository');
+        }
+        $path = $this->validatePath($path);
 
         if (!$this->pathExists($path)) {
             $this->deleteProperty($path);
@@ -1047,17 +1062,17 @@ class Client
             }
 
             try {
-
                 $regex = new \MongoRegex('/^' . addcslashes($path, '/') . '/');
 
                 $coll = $this->db->selectCollection(self::COLLNAME_NODES);
                 $qb = $coll->createQueryBuilder()
-                    ->remove()
+                    ->field('w_id')->equals($this->workspaceId)
                     ->field('path')->equals($regex)
-                    ->field('w_id')->equals($this->workspaceId);
-                $query = $qb->getQuery();
+                    ->remove()
+                    ->multiple(true)
+                ;
 
-                return $query->execute();
+                return $qb->getQuery()->execute();
             } catch (\Exception $e) {
                 return false;
             }
