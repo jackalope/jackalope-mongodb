@@ -133,9 +133,10 @@ class Client
         ;
         $entry = $qb->getQuery()->getSingleResult();
 
-        if (!$entry || !array_key_exists('path', $entry) || !$node = $this->getNode($entry['path'])) {
+        if (!$entry || !array_key_exists('path', $entry) || !$node = $this->getNode($path = $entry['path'])) {
             throw new \PHPCR\ItemNotFoundException();
         }
+        $node->{':jcr:path'} = $path;
 
         return $node;
     }
