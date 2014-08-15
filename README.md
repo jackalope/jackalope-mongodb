@@ -4,6 +4,8 @@ A powerful implementation of the [PHPCR API](http://phpcr.github.com).
 
 Jackalope binding for MongoDB. Still under heavy development. **Not yet production ready!**
 
+Check [here](https://github.com/jackalope/jackalope-mongodb/blob/master/tests/inc/MongoDBImplementationLoader.php#L25) to see which parts of the PHPCR API test suite are disabled. 
+
 Discuss on jackalope-dev@googlegroups.com
 or visit #jackalope on irc.freenode.net
 
