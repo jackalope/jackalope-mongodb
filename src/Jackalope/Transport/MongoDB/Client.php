@@ -213,7 +213,7 @@ class Client
      */
     public function updateNode(Node $node, $srcWorkspace)
     {
-        // TODO: Implement updateNode() method.
+        throw new NotImplementedException('Updating nodes is not implemented yet');
     }
 
     /**
