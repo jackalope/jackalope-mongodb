@@ -85,7 +85,7 @@ foreach ($iterator AS $file) {
 
                     if ($name == 'jcr:uuid') {
                         $uuid = current($value);
-                    } else if ($name == 'jcr:primaryType') {
+                    } elseif ($name == 'jcr:primaryType') {
                         $type = current($value);
                     } else {
                         $isMulti = (in_array($name, array('jcr:mixinTypes'))) || count($value) > 1;
@@ -165,7 +165,7 @@ foreach ($iterator AS $file) {
 
                     if ($name == 'jcr:uuid') {
                         $uuid = $attr->value;
-                    } else if ($name == 'jcr:primaryType') {
+                    } elseif ($name == 'jcr:primaryType') {
                         $type = $attr->value;
                     } else {
                         $attributes[] = array(

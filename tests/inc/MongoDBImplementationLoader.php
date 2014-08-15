@@ -29,7 +29,6 @@ class ImplementationLoader extends \PHPCR\Test\AbstractLoader
             'PermissionsAndCapabilities',
             'Import',
             'Observation',
-            'WorkspaceManagement',
             'ShareableNodes',
             'Versioning',
             'AccessControlManagement',
@@ -69,13 +68,25 @@ class ImplementationLoader extends \PHPCR\Test\AbstractLoader
 
             'Writing\\NamespaceRegistryTest::testRegisterUnregisterNamespace',
             'Writing\\CopyMethodsTest::testCopyUpdateOnCopy',
+
+            'WorkspaceManagement\\WorkspaceManagementTest::testCreateWorkspaceWithSource',
+            'WorkspaceManagement\\WorkspaceManagementTest::testCreateWorkspaceWithInvalidSource',
         );
 
     }
 
+    /**
+     * Make the repository ready for login with null credentials, handling the
+     * case where authentication is passed outside the login method.
+     *
+     * If the implementation does not support this feature, it must return
+     * false for this method, otherwise true.
+     *
+     * @return boolean true if anonymous login is supposed to work
+     */
     public function prepareAnonymousLogin()
     {
-        return false;
+        return true;
     }
 
     public static function getInstance()
@@ -83,12 +94,14 @@ class ImplementationLoader extends \PHPCR\Test\AbstractLoader
         if (null === self::$instance) {
             self::$instance = new ImplementationLoader();
         }
+
         return self::$instance;
     }
 
     public function getRepositoryFactoryParameters()
     {
         global $db; // initialized in bootstrap.php
+
         return array('jackalope.mongodb_database' => $db);
     }
 
@@ -112,10 +125,11 @@ class ImplementationLoader extends \PHPCR\Test\AbstractLoader
         return $GLOBALS['phpcr.user'];
     }
 
-    function getFixtureLoader()
+    public function getFixtureLoader()
     {
         global $db; // initialized in bootstrap.php
-        require_once "MongoDBFixtureLoader.php";
+        require_once 'MongoDBFixtureLoader.php';
+
         return new \MongoDBFixtureLoader($db, __DIR__ . "/../fixtures/mongodb/");
     }
 }

@@ -14,6 +14,7 @@ abstract class MongoDBTestCase extends TestCase
         if ($this->conn === null) {
             $this->conn = new Connection($GLOBALS['phpcr.doctrine.mongodb.server']);
         }
+
         return $this->conn;
     }
 }
