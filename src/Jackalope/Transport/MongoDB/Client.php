@@ -60,7 +60,7 @@ class Client
      */
     public function moveNodeImmediately($srcAbsPath, $dstAbsPath)
     {
-        // TODO: Implement moveNodeImmediately() method.
+        $this->moveNode($srcAbsPath, $dstAbsPath);
     }
 
     /**
@@ -310,7 +310,7 @@ class Client
      */
     public function deletePropertyImmediately($path)
     {
-        // TODO: Implement deletePropertyImmediately() method.
+        $this->deleteProperty($path);
     }
 
     /**
