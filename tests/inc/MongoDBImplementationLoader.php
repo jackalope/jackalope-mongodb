@@ -41,7 +41,23 @@ class ImplementationLoader extends \PHPCR\Test\AbstractLoader
             'OrderableChildNodes',
         );
 
-        $this->unsupportedCases = array();
+        $this->unsupportedCases = array(
+            'Writing\\AddMethodsTest',
+            'Writing\\CloneMethodsTest',
+            'Writing\\CombinedManipulationsTest',
+            'Writing\\CopyMethodsTest',
+            'Writing\\SetPropertyTypesTest',
+            'Writing\\SetPropertyDynamicRebindingTest',
+            'Writing\\DeleteMethodsTest',
+            'Writing\\SetPropertyMethodsTest',
+            'Writing\\MoveMethodsTest',
+            'Writing\\NodeTypeAssignementTest',
+            'Writing\\EncodingTest',
+            'Writing\\MixinReferenceableTest',
+            'Writing\\ItemStateTest',
+            'Writing\\LastModifiedTest',
+            'Writing\\MixinCreatedTest',
+        );
 
         $this->unsupportedTests = array(
             'Connecting\\RepositoryTest::testLoginException', //TODO: figure out what would be invalid credentials
@@ -67,10 +83,11 @@ class ImplementationLoader extends \PHPCR\Test\AbstractLoader
             'Query\\NodeViewTest::testSeekable',
 
             'Writing\\NamespaceRegistryTest::testRegisterUnregisterNamespace',
-            'Writing\\CopyMethodsTest::testCopyUpdateOnCopy',
 
             'WorkspaceManagement\\WorkspaceManagementTest::testCreateWorkspaceWithSource',
             'WorkspaceManagement\\WorkspaceManagementTest::testCreateWorkspaceWithInvalidSource',
+
+            'PhpcrUtils\\PurgeTest::testPurge',
         );
 
     }

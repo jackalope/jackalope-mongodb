@@ -7,7 +7,7 @@ class ClientTest extends MongoDBTestCase
     /**
      * @dataProvider getBooleanData
      */
-    public function testDaysRemaining($boolean, $expectedBoolean)
+    public function testFetchBooleanPropertyValue($boolean, $expectedBoolean)
     {
         $client = $this->getMockBuilder('Jackalope\Transport\MongoDB\Client')
             ->disableOriginalConstructor()

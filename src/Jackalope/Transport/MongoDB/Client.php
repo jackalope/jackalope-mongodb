@@ -59,12 +59,11 @@ use Jackalope\NotImplementedException;
 /**
  * @author Thomas Schedler <thomas@chirimoya.at>
  */
-class Client
-    extends BaseTransport
-    implements TransportInterface,
-               WritingInterface,
-               WorkspaceManagementInterface,
-               NodeTypeManagementInterface
+class Client extends BaseTransport implements
+    TransportInterface,
+    WritingInterface,
+    WorkspaceManagementInterface,
+    NodeTypeManagementInterface
 {
     /**
      * Moves a node from src to dst outside of a transaction
