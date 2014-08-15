@@ -22,6 +22,8 @@
 
 namespace Jackalope\Transport\MongoDB;
 
+use Doctrine\MongoDB\Database as MongoDBDatabase;
+
 use PHPCR\PropertyType;
 use PHPCR\RepositoryException;
 use PHPCR\Util\UUIDHelper;
@@ -157,8 +159,8 @@ class Client
         $this->assertLoggedIn();
 
         $descriptors = $this->getRepositoryDescriptors();
-        $supports = array_key_exists('option.workspace.management.supported', $descriptors) &&
-                    true === $descriptors['option.workspace.management.supported']
+        $supports = array_key_exists('option.workspace.management.supported', $descriptors)
+            && true === $descriptors['option.workspace.management.supported']
         ;
         if (!$supports) {
             throw new \PHPCR\UnsupportedRepositoryOperationException();
@@ -458,7 +460,7 @@ class Client
      * @param object                     $factory An object factory implementing "get" as described in \Jackalope\Factory
      * @param \Doctrine\MongoDB\Database $db
      */
-    public function __construct($factory, \Doctrine\MongoDB\Database $db)
+    public function __construct($factory, MongoDBDatabase $db)
     {
         $this->factory = $factory;
         $this->db = $db;
@@ -682,9 +684,9 @@ class Client
             } elseif ($type == \PHPCR\PropertyType::TYPENAME_BOOLEAN) {
                 if (isset($prop['multi']) && $prop['multi'] == true) {
                     $booleanValue = array();
-                    foreach ($prop['value'] as $booleanEntry)
+                    foreach ($prop['value'] as $booleanEntry) {
                         $booleanValue[] = $this->fetchBooleanPropertyValue($booleanEntry);
-                    ;
+                    }
                 } else {
                     $booleanValue = $this->fetchBooleanPropertyValue($prop['value']);
                 }
@@ -706,11 +708,11 @@ class Client
         // If the node is referenceable, return jcr:uuid.
         if (isset($data->{"jcr:mixinTypes"})) {
             foreach ((array) $data->{"jcr:mixinTypes"} as $mixin) {
-                if ($this->nodeTypeManager->getNodeType($mixin)->isNodeType('mix:referenceable')) {
-                    if ($node['_id'] instanceof \MongoBinData) {
-                        $data->{'jcr:uuid'} = $node['_id']->bin;
-                        break;
-                    }
+                if ($this->nodeTypeManager->getNodeType($mixin)->isNodeType('mix:referenceable')
+                    && $node['_id'] instanceof \MongoBinData
+                ) {
+                    $data->{'jcr:uuid'} = $node['_id']->bin;
+                    break;
                 }
             }
         }
