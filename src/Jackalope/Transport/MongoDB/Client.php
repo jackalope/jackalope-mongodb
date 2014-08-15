@@ -354,7 +354,8 @@ class Client
      */
     public function prepareSave()
     {
-        // TODO: Implement prepareSave() method.
+        // transaction related
+        throw new NotImplementedException();
     }
 
     /**
@@ -362,7 +363,19 @@ class Client
      */
     public function rollbackSave()
     {
-        // TODO: Implement rollbackSave() method.
+        // transaction related
+        throw new NotImplementedException();
+    }
+
+    /**
+     * Called after everything internally is done in the save() method
+     * so the transport has a chance to do final stuff (or commit everything
+     * at once).
+     */
+    public function finishSave()
+    {
+        // transaction related
+        throw new NotImplementedException();
     }
 
     /**
@@ -1767,14 +1780,6 @@ class Client
         );
     }
 
-
-    /**
-     * {@inheritDoc}
-     */
-    public function finishSave()
-    {
-
-    }
 
     protected function isWorkspaceAvailable()
     {
