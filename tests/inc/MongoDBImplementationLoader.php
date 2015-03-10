@@ -25,7 +25,6 @@ class ImplementationLoader extends \PHPCR\Test\AbstractLoader
         $this->unsupportedChapters = array(
             'Query',
             'Export',
-            'PermissionsAndCapabilities',
             'Import',
             'Observation',
             'Versioning',
