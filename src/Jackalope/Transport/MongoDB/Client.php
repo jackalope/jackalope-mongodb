@@ -53,6 +53,7 @@ use Jackalope\Transport\NodeTypeManagementInterface;
 use Jackalope\Transport\StandardNodeTypes;
 use Jackalope\Transport\RemoveNodeOperation;
 use Jackalope\Transport\Operation as TransportOperation;
+use Jackalope\Transport\PermissionInterface as PermissionTransport;
 use Jackalope\NodeType\NodeType;
 use Jackalope\NotImplementedException;
 
@@ -63,7 +64,8 @@ class Client extends BaseTransport implements
     TransportInterface,
     WritingInterface,
     WorkspaceManagementInterface,
-    NodeTypeManagementInterface
+    NodeTypeManagementInterface,
+    PermissionTransport
 {
     /**
      * Moves a node from src to dst outside of a transaction
