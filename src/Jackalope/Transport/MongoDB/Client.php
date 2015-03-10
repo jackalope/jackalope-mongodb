@@ -54,8 +54,10 @@ use Jackalope\Transport\StandardNodeTypes;
 use Jackalope\Transport\RemoveNodeOperation;
 use Jackalope\Transport\Operation as TransportOperation;
 use Jackalope\Transport\PermissionInterface as PermissionTransport;
+use Jackalope\Transport\QueryInterface as QueryTransport;
 use Jackalope\NodeType\NodeType;
 use Jackalope\NotImplementedException;
+use Jackalope\Query\Query;
 
 /**
  * @author Thomas Schedler <thomas@chirimoya.at>
@@ -65,7 +67,8 @@ class Client extends BaseTransport implements
     WritingInterface,
     WorkspaceManagementInterface,
     NodeTypeManagementInterface,
-    PermissionTransport
+    PermissionTransport,
+    QueryTransport
 {
     /**
      * Moves a node from src to dst outside of a transaction
@@ -934,7 +937,7 @@ class Client extends BaseTransport implements
     /**
      * {@inheritDoc}
      */
-    public function query(QueryInterface $query)
+    public function query(Query $query)
     {
         switch ($query->getLanguage()) {
             case QueryInterface::JCR_SQL2:
@@ -1832,5 +1835,20 @@ class Client extends BaseTransport implements
         }
 
         return (boolean) $booleanValue;
+    }
+
+    /**
+     * The transport must at least support JCR_SQL2 and JCR_JQOM.
+     *
+     * Note that QueryObjectModel::getStatement() returns the query as JCR_SQL2
+     * so it costs you nothing to support JQOM.
+     *
+     * @return array A list of query languages supported by this transport.
+     *
+     * @see QueryManagerInterface::getSupportedQueryLanguages
+     */
+    public function getSupportedQueryLanguages()
+    {
+        // TODO: Implement getSupportedQueryLanguages() method.
     }
 }
