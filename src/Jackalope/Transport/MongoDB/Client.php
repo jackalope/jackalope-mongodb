@@ -1779,7 +1779,7 @@ class Client extends BaseTransport implements
     {
         if (!(strpos($path, '//') === false
             && strpos($path, '/../') === false
-            && preg_match('/^[\w{}\/#%&;:^+~*\[\]\. -]*$/iu', $path))
+            && preg_match('/^[\w{}\/#%&;:^+~*?¢\[\]\. -]*$/iu', $path))
         ) {
             throw new RepositoryException('Path is not well-formed or contains invalid characters: ' . $path);
         }
