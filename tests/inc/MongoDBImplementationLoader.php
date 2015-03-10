@@ -27,12 +27,12 @@ class ImplementationLoader extends \PHPCR\Test\AbstractLoader
             'Export',
             'Import',
             'NodeTypeManagement',
-            'Transactions',
             'SameNameSiblings',
             'OrderableChildNodes',
             'Observation', //TODO: Transport does not support observation
             'Versioning', //TODO: Transport does not support versioning
             'Locking', //TODO: Transport does not support locking
+            'Transactions', //TODO: Transport does not support transactions
         );
 
         $this->unsupportedCases = array(
