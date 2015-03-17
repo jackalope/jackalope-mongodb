@@ -23,7 +23,7 @@ class ImplementationLoader extends \PHPCR\Test\AbstractLoader
         parent::__construct('Jackalope\RepositoryFactoryMongoDB');
 
         $this->unsupportedChapters = array(
-            'Query',
+            // 'Query',
             'Export',
             'Import',
             'NodeTypeManagement',

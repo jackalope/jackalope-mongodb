@@ -1849,6 +1849,9 @@ class Client extends BaseTransport implements
      */
     public function getSupportedQueryLanguages()
     {
-        // TODO: Implement getSupportedQueryLanguages() method.
+        return array(
+            QueryInterface::JCR_SQL2,
+            QueryInterface::JCR_JQOM,
+        );
     }
 }
