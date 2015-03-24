@@ -28,6 +28,7 @@ use PHPCR\PropertyType;
 use PHPCR\NodeInterface;
 use PHPCR\Util\UUIDHelper;
 use PHPCR\Util\QOM\Sql2ToQomQueryConverter;
+use PHPCR\Util\PathHelper;
 use PHPCR\Query\QOM\QueryObjectModelInterface;
 use PHPCR\Query\InvalidQueryException;
 use PHPCR\SessionInterface;
@@ -810,10 +811,15 @@ class Client extends BaseTransport implements
      */
     public function getBinaryStream($path)
     {
+        $this->assertLoggedIn();
+
+        $parentPath = $this->pathExists(PathHelper::getParentPath($path));
+
         $grid = $this->db->getGridFS();
-        $binary = $grid->getMongoCollection()->findOne(
+        $binary = $grid->getMongoCollection()->find(
             array(
-                 'path' => $path,
+                 'path' => $this->pathExists($path),
+                 'parent' => $parentPath,
                  'w_id' => $this->workspaceId
             )
         );
@@ -824,7 +830,7 @@ class Client extends BaseTransport implements
 
         // TODO: OPTIMIZE stream handling!
         $stream = fopen('php://memory', 'rwb+');
-        fwrite($stream, $binary->getBytes());
+        fwrite($stream, $binary->current());
         rewind($stream);
 
         return $stream;
