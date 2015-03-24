@@ -27,6 +27,9 @@ use Doctrine\MongoDB\Database as MongoDBDatabase;
 use PHPCR\PropertyType;
 use PHPCR\NodeInterface;
 use PHPCR\Util\UUIDHelper;
+use PHPCR\Util\QOM\Sql2ToQomQueryConverter;
+use PHPCR\Query\QOM\QueryObjectModelInterface;
+use PHPCR\Query\InvalidQueryException;
 use PHPCR\SessionInterface;
 use PHPCR\PropertyInterface;
 use PHPCR\RepositoryInterface;
@@ -939,13 +942,24 @@ class Client extends BaseTransport implements
      */
     public function query(Query $query)
     {
-        switch ($query->getLanguage()) {
-            case QueryInterface::JCR_SQL2:
-                throw new NotImplementedException('JCQ-JCR_SQL2 not yet implemented.');
-            case QueryInterface::JCR_JQOM:
-                throw new NotImplementedException('JCQ-JQOM not yet implemented.');
-                break;
+        $this->assertLoggedIn();
+
+        if(!$query instanceof QueryObjectModelInterface) {
+            $parser = new Sql2ToQomQueryConverter($this->factory->get('Query\QOM\QueryObjectModelFactory'));
+            try {
+                $qom = $parser->parse($query->getStatement());
+                $qom->setLimit($query->getLimit());
+                $qom->setOffset($query->getOffset());
+            } catch(\Exception $e) {
+                throw new InvalidQueryException('Invalid query: ' . $query->getStatement(), null, $e);
+            }
+        } else {
+            $qom = $query;
         }
+
+        // TODO: realize QOM handler
+//        $qomWalker = new QOMWalker($this->nodeTypeManager, $this->db->getConnection(), $this->getNamespaces());
+//        list($selectors, $selectorAliases, $sql) = $qomWalker->walkQOMQuery($qom);
     }
 
     // WritingInterface //
