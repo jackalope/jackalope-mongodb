@@ -69,6 +69,8 @@ class ImplementationLoader extends \PHPCR\Test\AbstractLoader
             'Reading\\BinaryReadMethodsTest::testReadBinaryValueAsString',
             'Reading\\BinaryReadMethodsTest::testReadBinaryValues',
             'Reading\\BinaryReadMethodsTest::testReadBinaryValuesAsString',
+            'Reading\\BinaryReadMethodsTest::testReadBinaryPathEncoding',
+            'Reading\\BinaryReadMethodsTest::testReadBinaryPathTrailingQuestionmark',
             'Reading\\PropertyReadMethodsTest::testGetBinary',
             'Reading\\PropertyReadMethodsTest::testGetBinaryMulti',
 
