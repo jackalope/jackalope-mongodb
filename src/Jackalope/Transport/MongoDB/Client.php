@@ -813,12 +813,12 @@ class Client extends BaseTransport implements
     {
         $this->assertLoggedIn();
 
-        $parentPath = $this->pathExists(PathHelper::getParentPath($path));
+        $parentPath = PathHelper::getParentPath($path);
 
         $grid = $this->db->getGridFS();
         $binary = $grid->getMongoCollection()->find(
             array(
-                 'path' => $this->pathExists($path),
+                 'path' => $this->$path,
                  'parent' => $parentPath,
                  'w_id' => $this->workspaceId
             )
