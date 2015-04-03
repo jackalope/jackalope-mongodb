@@ -1586,7 +1586,16 @@ class Client extends BaseTransport implements
 
     public function registerNodeTypes($types, $allowUpdate)
     {
-        throw new NotImplementedException('Not implemented yet.');
+        $standartTypes = StandardNodeTypes::getNodeTypeData();
+
+        foreach($types as $type)
+        {
+            if(isset($standartTypes[$type->getName()])) {
+                throw new RepositoryException(sprintf('%s: can\'t reregister built-in node type.', $type->getName()));
+            }
+
+            // Need 'phpcr_type_nodes' collection
+        }
     }
 
     // private|protected helper methods //
