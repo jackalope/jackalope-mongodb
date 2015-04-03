@@ -818,7 +818,7 @@ class Client extends BaseTransport implements
         $grid = $this->db->getGridFS();
         $binary = $grid->getMongoCollection()->find(
             array(
-                 'path' => $this->$path,
+                 'path' => $path,
                  'parent' => $parentPath,
                  'w_id' => $this->workspaceId
             )
