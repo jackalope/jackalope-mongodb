@@ -46,6 +46,7 @@ use PHPCR\NamespaceRegistryInterface;
 use PHPCR\ReferentialIntegrityException;
 use PHPCR\NodeType\ConstraintViolationException;
 use PHPCR\UnsupportedRepositoryOperationException;
+use PHPCR\NodeType\NodeTypeExistsException;
 
 use Jackalope\Node;
 use Jackalope\Property;
@@ -427,6 +428,13 @@ class Client extends BaseTransport implements
     const COLLNAME_NODES = 'phpcr_nodes';
 
     /**
+     * Name of MongoDB node collection
+     *
+     * @var string
+     */
+    const COLLNAME_TYPE_NODES = 'phpcr_type_nodes';
+
+    /**
      * @var \Jackalope\Factory
      */
     protected $factory;
@@ -489,6 +497,8 @@ class Client extends BaseTransport implements
     {
         $this->factory = $factory;
         $this->db = $db;
+
+        $this->db->createCollection(self::COLLNAME_TYPE_NODES);
     }
 
     // TransportInterface //
@@ -1587,14 +1597,45 @@ class Client extends BaseTransport implements
     public function registerNodeTypes($types, $allowUpdate)
     {
         $standartTypes = StandardNodeTypes::getNodeTypeData();
-
-        foreach($types as $type)
+        foreach ($types as $type)
         {
-            if(isset($standartTypes[$type->getName()])) {
+            if (isset($standartTypes[$type->getName()])) {
                 throw new RepositoryException(sprintf('%s: can\'t reregister built-in node type.', $type->getName()));
             }
+            if ($allowUpdate) {
+                $coll = $this->db->selectCollection(self::COLLNAME_TYPE_NODES);
 
-            // Need 'phpcr_type_nodes' collection
+                $qb = $coll->createQueryBuilder()
+                    ->field('name')->equals(array($type->getName()));
+
+                $query = $qb->getQuery();
+                $result = $query->getIterator();
+
+                if ($result) {
+                    $qb = $coll->createQueryBuilder()
+                        ->field('name')->findAndRemove()->equals(array($type->getName()));
+                }
+            }
+
+            try {
+                $coll = $this->db->selectCollection(self::COLLNAME_TYPE_NODES);
+
+                $node_type = array(
+                    'name' => $type->getName(),
+                    'supertypes' => implode(' ', $type->getDeclaredSuperTypeNames()),
+                    'is_abstract' => $type->isAbstract() ? 1 : 0,
+                    'is_mixin' => $type->isMixin() ? 1 : 0,
+                    'queryable' => $type->isQueryable() ? 1 : 0,
+                    'orderable_child_nodes' => $type->hasOrderableChildNodes() ? 1 : 0,
+                    'primary_item' => $type->getPrimaryItemName(),
+                );
+
+                $coll->insert($node_type);
+            } catch (\Exception $e) {
+                throw new NodeTypeExistsException("Could not register node type with the name '".$type->getName()."'");
+            }
+
+            // Need 'phpcr_type_props' and 'phpcr_type_childs' collections
         }
     }
 
