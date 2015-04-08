@@ -497,8 +497,6 @@ class Client extends BaseTransport implements
     {
         $this->factory = $factory;
         $this->db = $db;
-
-        $this->db->createCollection(self::COLLNAME_TYPE_NODES);
     }
 
     // TransportInterface //
