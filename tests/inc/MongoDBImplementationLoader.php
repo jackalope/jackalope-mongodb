@@ -23,16 +23,16 @@ class ImplementationLoader extends \PHPCR\Test\AbstractLoader
         parent::__construct('Jackalope\RepositoryFactoryMongoDB');
 
         $this->unsupportedChapters = array(
-            // 'Query',
+            'Query',
             'Export',
             'Import',
             'NodeTypeManagement',
             'SameNameSiblings',
             'OrderableChildNodes',
-            'Observation', //TODO: Transport does not support observation
-            'Versioning', //TODO: Transport does not support versioning
-            'Locking', //TODO: Transport does not support locking
-            'Transactions', //TODO: Transport does not support transactions
+            'Observation',         // TODO: Transport does not support observation
+            'Versioning',          // TODO: Transport does not support versioning
+            'Locking',             // TODO: Transport does not support locking
+            'Transactions',        // TODO: Transport does not support transactions
         );
 
         $this->unsupportedCases = array(
@@ -54,17 +54,14 @@ class ImplementationLoader extends \PHPCR\Test\AbstractLoader
         );
 
         $this->unsupportedTests = array(
-            'Connecting\\RepositoryTest::testLoginException', //TODO: figure out what would be invalid credentials
-            //'Connecting\\RepositoryTest::testNoLogin',
-            //'Connecting\\RepositoryTest::testNoLoginAndWorkspace',
+            'Connecting\\RepositoryTest::testLoginException',                 // TODO: figure out what would be invalid credentials
             'Connecting\\WorkspaceReadMethodsTest::testGetQueryManager',
 
-            'Reading\\SessionReadMethodsTest::testImpersonate', //TODO: Check if that's implemented in newer jackrabbit versions.
+            'Reading\\SessionReadMethodsTest::testImpersonate',               // TODO: Check if that's implemented in newer jackrabbit versions.
             'Reading\\SessionNamespaceRemappingTest::testSetNamespacePrefix',
-            'Reading\\NodeReadMethodsTest::testGetSharedSetUnreferenced', // TODO: should this be moved to 14_ShareableNodes
+            'Reading\\NodeReadMethodsTest::testGetSharedSetUnreferenced',     // TODO: should this be moved to 14_ShareableNodes
 
-            // TODO MongoDB specific fixer-loading problem with binaries
-            'Reading\\BinaryReadMethodsTest::testReadBinaryValue',
+            'Reading\\BinaryReadMethodsTest::testReadBinaryValue',            // TODO MongoDB specific fixer-loading problem with binaries
             'Reading\\BinaryReadMethodsTest::testIterateBinaryValue',
             'Reading\\BinaryReadMethodsTest::testReadBinaryValueAsString',
             'Reading\\BinaryReadMethodsTest::testReadBinaryValues',
@@ -84,6 +81,8 @@ class ImplementationLoader extends \PHPCR\Test\AbstractLoader
             'WorkspaceManagement\\WorkspaceManagementTest::testCreateWorkspaceWithInvalidSource',
 
             'PhpcrUtils\\PurgeTest::testPurge',
+
+            'PermissionsAndCapabilities\\PermissionReadTest::testCheckPermissionAccessControlException',
         );
 
     }
