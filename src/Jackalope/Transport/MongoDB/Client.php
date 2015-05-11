@@ -23,7 +23,6 @@
 namespace Jackalope\Transport\MongoDB;
 
 use Doctrine\MongoDB\Database as MongoDBDatabase;
-
 use PHPCR\PropertyType;
 use PHPCR\NodeInterface;
 use PHPCR\Util\UUIDHelper;
@@ -47,7 +46,6 @@ use PHPCR\ReferentialIntegrityException;
 use PHPCR\NodeType\ConstraintViolationException;
 use PHPCR\UnsupportedRepositoryOperationException;
 use PHPCR\NodeType\NodeTypeExistsException;
-
 use Jackalope\Node;
 use Jackalope\Property;
 use Jackalope\Transport\BaseTransport;
@@ -569,7 +567,7 @@ class Client extends BaseTransport implements
         $workspaces = $coll->find();
 
         $names = array();
-        foreach ($workspaces AS $workspace) {
+        foreach ($workspaces as $workspace) {
             $names[] = $workspace['name'];
         }
 
@@ -757,7 +755,7 @@ class Client extends BaseTransport implements
         $query = $qb->getQuery();
         $children = $query->getIterator();
 
-        foreach ($children AS $child) {
+        foreach ($children as $child) {
             $childName = explode('/', $child['path']);
             $childName = end($childName);
             $data->{$childName} = new \stdClass();
@@ -964,7 +962,7 @@ class Client extends BaseTransport implements
                 $qom = $parser->parse($query->getStatement());
                 $qom->setLimit($query->getLimit());
                 $qom->setOffset($query->getOffset());
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 throw new InvalidQueryException('Invalid query: ' . $query->getStatement(), null, $e);
             }
         } else {
@@ -1014,7 +1012,6 @@ class Client extends BaseTransport implements
         }
 
         try {
-
             $regex = new \MongoRegex('/^' . addcslashes($srcAbsPath, '/') . '/');
 
             $coll = $this->db->selectCollection(self::COLLNAME_NODES);
@@ -1036,7 +1033,6 @@ class Client extends BaseTransport implements
 
                 $coll->insert($node);
             }
-
         } catch (\Exception $e) {
             throw $e;
         }
@@ -1073,7 +1069,6 @@ class Client extends BaseTransport implements
         }
 
         try {
-
             $regex = new \MongoRegex('/^' . addcslashes($srcAbsPath, '/') . '/');
 
             $coll = $this->db->selectCollection(self::COLLNAME_NODES);
@@ -1092,7 +1087,6 @@ class Client extends BaseTransport implements
 
                 $coll->save($node);
             }
-
         } catch (\Exception $e) {
             throw $e;
         }
@@ -1211,9 +1205,8 @@ class Client extends BaseTransport implements
         $type = isset($properties['jcr:primaryType']) ? $properties['jcr:primaryType']->getValue() : "nt:unstructured";
 
         try {
-
             $props = array();
-            foreach ($properties AS $property) {
+            foreach ($properties as $property) {
                 $data = $this->decodeProperty($property);
                 if (!empty($data)) {
                     $props[] = $data;
@@ -1241,7 +1234,6 @@ class Client extends BaseTransport implements
                 $query = $qb->getQuery();
                 $query->execute(); // FIXME use _id for update?
             }
-
         } catch (\Exception $e) {
             throw new RepositoryException('Storing node ' . $node->getPath() . ' failed: ' . $e->getMessage(), null, $e);
         }
@@ -1276,15 +1268,15 @@ class Client extends BaseTransport implements
         array_unshift($nodeTypes, $nodeDef);
         foreach ($nodeTypes as $nodeType) {
             /* @var $nodeType \PHPCR\NodeType\NodeTypeDefinitionInterface */
-            foreach ($nodeType->getDeclaredSupertypes() AS $superType) {
+            foreach ($nodeType->getDeclaredSupertypes() as $superType) {
                 $nodeTypes[] = $superType;
             }
         }
 
         $propertyDefinitions = array();
-        foreach ($nodeTypes AS $nodeType) {
+        foreach ($nodeTypes as $nodeType) {
             /* @var $nodeType \PHPCR\NodeType\NodeTypeDefinitionInterface */
-            foreach ($nodeType->getDeclaredPropertyDefinitions() AS $itemDef) {
+            foreach ($nodeType->getDeclaredPropertyDefinitions() as $itemDef) {
                 /* @var $itemDef \PHPCR\NodeType\ItemDefinitionInterface */
                 if ($itemDef->getName() == '*') {
                     continue;
@@ -1340,7 +1332,6 @@ class Client extends BaseTransport implements
                 $query = $qb->getQuery();
                 $query->execute();
             }
-
         } catch (\Exception $e) {
             throw $e;
         }
@@ -1467,7 +1458,7 @@ class Client extends BaseTransport implements
                 break;
             case PropertyType::BINARY:
                 if ($property->isMultiple()) {
-                    foreach ((array) $property->getBinary() AS $binary) {
+                    foreach ((array) $property->getBinary() as $binary) {
                         $binary = stream_get_contents($binary);
                         $binaryData[] = $binary;
                         $values[] = strlen($binary);
@@ -1481,7 +1472,7 @@ class Client extends BaseTransport implements
             case PropertyType::DATE:
                 if ($property->isMultiple()) {
                     $dates = $property->getDate() ? : new \DateTime('now');
-                    foreach ((array) $dates AS $date) {
+                    foreach ((array) $dates as $date) {
                         $value = array(
                             'date'     => new \MongoDate($date->getTimestamp()),
                             'timezone' => $date->getTimezone()->getName()
@@ -1503,7 +1494,7 @@ class Client extends BaseTransport implements
 
         if ($isMultiple) {
             $data['value'] = array();
-            foreach ((array) $values AS $value) {
+            foreach ((array) $values as $value) {
                 $this->assertValidPropertyValue($data['type'], $value, $path);
                 $data['value'][] = $value;
             }
@@ -1514,7 +1505,7 @@ class Client extends BaseTransport implements
 
         if ($binaryData) {
             try {
-                foreach ($binaryData AS $idx => $binary) {
+                foreach ($binaryData as $idx => $binary) {
                     $grid = $this->db->getGridFS();
                     $grid->getMongoCollection()->storeBytes($binary, array(
                                                                           'path' => $path,
@@ -1595,8 +1586,7 @@ class Client extends BaseTransport implements
     public function registerNodeTypes($types, $allowUpdate)
     {
         $standartTypes = StandardNodeTypes::getNodeTypeData();
-        foreach ($types as $type)
-        {
+        foreach ($types as $type) {
             if (isset($standartTypes[$type->getName()])) {
                 throw new RepositoryException(sprintf('%s: can\'t reregister built-in node type.', $type->getName()));
             }
