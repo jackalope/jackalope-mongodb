@@ -958,7 +958,7 @@ class Client extends BaseTransport implements
     {
         $this->assertLoggedIn();
 
-        if(!$query instanceof QueryObjectModelInterface) {
+        if (!$query instanceof QueryObjectModelInterface) {
             $parser = new Sql2ToQomQueryConverter($this->factory->get('Query\QOM\QueryObjectModelFactory'));
             try {
                 $qom = $parser->parse($query->getStatement());
