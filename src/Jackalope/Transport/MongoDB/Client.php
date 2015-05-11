@@ -1859,10 +1859,9 @@ class Client extends BaseTransport implements
             SessionInterface::ACTION_ADD_NODE,
             SessionInterface::ACTION_READ,
             SessionInterface::ACTION_REMOVE,
-            SessionInterface::ACTION_SET_PROPERTY
+            SessionInterface::ACTION_SET_PROPERTY,
         );
     }
-
 
     protected function isWorkspaceAvailable()
     {
