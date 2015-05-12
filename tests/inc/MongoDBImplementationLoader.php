@@ -23,7 +23,6 @@ class ImplementationLoader extends \PHPCR\Test\AbstractLoader
         parent::__construct('Jackalope\RepositoryFactoryMongoDB');
 
         $this->unsupportedChapters = array(
-            'Query',
             'Export',
             'Import',
             'NodeTypeManagement',
@@ -51,6 +50,12 @@ class ImplementationLoader extends \PHPCR\Test\AbstractLoader
             'Writing\\ItemStateTest',
             'Writing\\LastModifiedTest',
             'Writing\\MixinCreatedTest',
+
+            'Query\\XPath\QueryOperationsTest',
+            'Query\\QuerySql2OperationsTest',
+            'Query\\RowIteratorTest',
+            'Query\\RowTest',
+            'Query\\Sql1\QueryOperationsTest',
         );
 
         $this->unsupportedTests = array(
@@ -71,9 +76,32 @@ class ImplementationLoader extends \PHPCR\Test\AbstractLoader
             'Reading\\PropertyReadMethodsTest::testGetBinary',
             'Reading\\PropertyReadMethodsTest::testGetBinaryMulti',
 
-            'Query\QueryManagerTest::testGetQuery',
-            'Query\QueryManagerTest::testGetQueryInvalid',
+            'Query\\QueryManagerTest::testGetQuery',
+            'Query\\QueryManagerTest::testGetQueryInvalid',
             'Query\\NodeViewTest::testSeekable',
+            'Query\\NodeViewTest::testSeekableOutOfBounds',
+            'Query\\QueryObjectSql2Test::testGetStoredQueryPath',
+            'Query\\QueryObjectSql2Test::testExecuteLimit',
+            'Query\\QueryObjectSql2Test::testExecuteOffset',
+            'Query\\QueryObjectSql2Test::testExecuteLimitAndOffset',
+            'Query\\QueryResultsTest::testGetColumnNames',
+            'Query\\QueryResultsTest::testGetAliasColumnNames',
+            'Query\\QueryResultsTest::testGetSelectorNames',
+            'Query\\QueryResultsTest::testGetNodes',
+            'Query\\QueryResultsTest::testIterateOverQueryResult',
+            'Query\\QueryResultsTest::testReadPropertyContentFromResults',
+            'Query\\QueryResultsTest::testCompareNumberFields',
+            'Query\\QueryResultsTest::testCompareStringFields',
+            'Query\\QueryResultsTest::testBooleanField',
+            'Query\\CharacterTest::testPropertyWithBackslash',
+            'Query\\CharacterTest::testPropertyWithDoubleBackslash',
+            'Query\\CharacterTest::testPropertyWithQuotes',
+            'Query\\CharacterTest::testPropertyWithQuotesAndBackslash',
+            'Query\\CharacterTest::testQueryWithAmpersand',
+            'Query\\NodeViewTest::testIterator',
+            'Query\\QueryObjectQOMTest::testExecute',
+            'Query\\QueryObjectQOMTest::testExecuteInvalid',
+
 
             'Writing\\NamespaceRegistryTest::testRegisterUnregisterNamespace',
 
