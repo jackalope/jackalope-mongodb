@@ -23,10 +23,13 @@
 namespace Jackalope\Transport\MongoDB;
 
 use Doctrine\MongoDB\Database as MongoDBDatabase;
-
 use PHPCR\PropertyType;
 use PHPCR\NodeInterface;
 use PHPCR\Util\UUIDHelper;
+use PHPCR\Util\QOM\Sql2ToQomQueryConverter;
+use PHPCR\Util\PathHelper;
+use PHPCR\Query\QOM\QueryObjectModelInterface;
+use PHPCR\Query\InvalidQueryException;
 use PHPCR\SessionInterface;
 use PHPCR\PropertyInterface;
 use PHPCR\RepositoryInterface;
@@ -42,7 +45,7 @@ use PHPCR\NamespaceRegistryInterface;
 use PHPCR\ReferentialIntegrityException;
 use PHPCR\NodeType\ConstraintViolationException;
 use PHPCR\UnsupportedRepositoryOperationException;
-
+use PHPCR\NodeType\NodeTypeExistsException;
 use Jackalope\Node;
 use Jackalope\Property;
 use Jackalope\Transport\BaseTransport;
@@ -53,8 +56,11 @@ use Jackalope\Transport\NodeTypeManagementInterface;
 use Jackalope\Transport\StandardNodeTypes;
 use Jackalope\Transport\RemoveNodeOperation;
 use Jackalope\Transport\Operation as TransportOperation;
+use Jackalope\Transport\PermissionInterface as PermissionTransport;
+use Jackalope\Transport\QueryInterface as QueryTransport;
 use Jackalope\NodeType\NodeType;
 use Jackalope\NotImplementedException;
+use Jackalope\Query\Query;
 
 /**
  * @author Thomas Schedler <thomas@chirimoya.at>
@@ -63,7 +69,9 @@ class Client extends BaseTransport implements
     TransportInterface,
     WritingInterface,
     WorkspaceManagementInterface,
-    NodeTypeManagementInterface
+    NodeTypeManagementInterface,
+    PermissionTransport,
+    QueryTransport
 {
     /**
      * Moves a node from src to dst outside of a transaction
@@ -418,6 +426,13 @@ class Client extends BaseTransport implements
     const COLLNAME_NODES = 'phpcr_nodes';
 
     /**
+     * Name of MongoDB node collection
+     *
+     * @var string
+     */
+    const COLLNAME_TYPE_NODES = 'phpcr_type_nodes';
+
+    /**
      * @var \Jackalope\Factory
      */
     protected $factory;
@@ -552,7 +567,7 @@ class Client extends BaseTransport implements
         $workspaces = $coll->find();
 
         $names = array();
-        foreach ($workspaces AS $workspace) {
+        foreach ($workspaces as $workspace) {
             $names[] = $workspace['name'];
         }
 
@@ -740,7 +755,7 @@ class Client extends BaseTransport implements
         $query = $qb->getQuery();
         $children = $query->getIterator();
 
-        foreach ($children AS $child) {
+        foreach ($children as $child) {
             $childName = explode('/', $child['path']);
             $childName = end($childName);
             $data->{$childName} = new \stdClass();
@@ -802,10 +817,15 @@ class Client extends BaseTransport implements
      */
     public function getBinaryStream($path)
     {
+        $this->assertLoggedIn();
+
+        $parentPath = PathHelper::getParentPath($path);
+
         $grid = $this->db->getGridFS();
-        $binary = $grid->getMongoCollection()->findOne(
+        $binary = $grid->getMongoCollection()->find(
             array(
                  'path' => $path,
+                 'parent' => $parentPath,
                  'w_id' => $this->workspaceId
             )
         );
@@ -816,7 +836,7 @@ class Client extends BaseTransport implements
 
         // TODO: OPTIMIZE stream handling!
         $stream = fopen('php://memory', 'rwb+');
-        fwrite($stream, $binary->getBytes());
+        fwrite($stream, $binary->current());
         rewind($stream);
 
         return $stream;
@@ -932,15 +952,26 @@ class Client extends BaseTransport implements
     /**
      * {@inheritDoc}
      */
-    public function query(QueryInterface $query)
+    public function query(Query $query)
     {
-        switch ($query->getLanguage()) {
-            case QueryInterface::JCR_SQL2:
-                throw new NotImplementedException('JCQ-JCR_SQL2 not yet implemented.');
-            case QueryInterface::JCR_JQOM:
-                throw new NotImplementedException('JCQ-JQOM not yet implemented.');
-                break;
+        $this->assertLoggedIn();
+
+        if (!$query instanceof QueryObjectModelInterface) {
+            $parser = new Sql2ToQomQueryConverter($this->factory->get('Query\QOM\QueryObjectModelFactory'));
+            try {
+                $qom = $parser->parse($query->getStatement());
+                $qom->setLimit($query->getLimit());
+                $qom->setOffset($query->getOffset());
+            } catch (\Exception $e) {
+                throw new InvalidQueryException('Invalid query: ' . $query->getStatement(), null, $e);
+            }
+        } else {
+            $qom = $query;
         }
+
+        // TODO: realize QOM handler
+//        $qomWalker = new QOMWalker($this->nodeTypeManager, $this->db->getConnection(), $this->getNamespaces());
+//        list($selectors, $selectorAliases, $sql) = $qomWalker->walkQOMQuery($qom);
     }
 
     // WritingInterface //
@@ -981,7 +1012,6 @@ class Client extends BaseTransport implements
         }
 
         try {
-
             $regex = new \MongoRegex('/^' . addcslashes($srcAbsPath, '/') . '/');
 
             $coll = $this->db->selectCollection(self::COLLNAME_NODES);
@@ -1003,7 +1033,6 @@ class Client extends BaseTransport implements
 
                 $coll->insert($node);
             }
-
         } catch (\Exception $e) {
             throw $e;
         }
@@ -1040,7 +1069,6 @@ class Client extends BaseTransport implements
         }
 
         try {
-
             $regex = new \MongoRegex('/^' . addcslashes($srcAbsPath, '/') . '/');
 
             $coll = $this->db->selectCollection(self::COLLNAME_NODES);
@@ -1059,7 +1087,6 @@ class Client extends BaseTransport implements
 
                 $coll->save($node);
             }
-
         } catch (\Exception $e) {
             throw $e;
         }
@@ -1178,9 +1205,8 @@ class Client extends BaseTransport implements
         $type = isset($properties['jcr:primaryType']) ? $properties['jcr:primaryType']->getValue() : "nt:unstructured";
 
         try {
-
             $props = array();
-            foreach ($properties AS $property) {
+            foreach ($properties as $property) {
                 $data = $this->decodeProperty($property);
                 if (!empty($data)) {
                     $props[] = $data;
@@ -1208,7 +1234,6 @@ class Client extends BaseTransport implements
                 $query = $qb->getQuery();
                 $query->execute(); // FIXME use _id for update?
             }
-
         } catch (\Exception $e) {
             throw new RepositoryException('Storing node ' . $node->getPath() . ' failed: ' . $e->getMessage(), null, $e);
         }
@@ -1243,15 +1268,15 @@ class Client extends BaseTransport implements
         array_unshift($nodeTypes, $nodeDef);
         foreach ($nodeTypes as $nodeType) {
             /* @var $nodeType \PHPCR\NodeType\NodeTypeDefinitionInterface */
-            foreach ($nodeType->getDeclaredSupertypes() AS $superType) {
+            foreach ($nodeType->getDeclaredSupertypes() as $superType) {
                 $nodeTypes[] = $superType;
             }
         }
 
         $propertyDefinitions = array();
-        foreach ($nodeTypes AS $nodeType) {
+        foreach ($nodeTypes as $nodeType) {
             /* @var $nodeType \PHPCR\NodeType\NodeTypeDefinitionInterface */
-            foreach ($nodeType->getDeclaredPropertyDefinitions() AS $itemDef) {
+            foreach ($nodeType->getDeclaredPropertyDefinitions() as $itemDef) {
                 /* @var $itemDef \PHPCR\NodeType\ItemDefinitionInterface */
                 if ($itemDef->getName() == '*') {
                     continue;
@@ -1307,7 +1332,6 @@ class Client extends BaseTransport implements
                 $query = $qb->getQuery();
                 $query->execute();
             }
-
         } catch (\Exception $e) {
             throw $e;
         }
@@ -1434,7 +1458,7 @@ class Client extends BaseTransport implements
                 break;
             case PropertyType::BINARY:
                 if ($property->isMultiple()) {
-                    foreach ((array) $property->getBinary() AS $binary) {
+                    foreach ((array) $property->getBinary() as $binary) {
                         $binary = stream_get_contents($binary);
                         $binaryData[] = $binary;
                         $values[] = strlen($binary);
@@ -1448,7 +1472,7 @@ class Client extends BaseTransport implements
             case PropertyType::DATE:
                 if ($property->isMultiple()) {
                     $dates = $property->getDate() ? : new \DateTime('now');
-                    foreach ((array) $dates AS $date) {
+                    foreach ((array) $dates as $date) {
                         $value = array(
                             'date'     => new \MongoDate($date->getTimestamp()),
                             'timezone' => $date->getTimezone()->getName()
@@ -1470,7 +1494,7 @@ class Client extends BaseTransport implements
 
         if ($isMultiple) {
             $data['value'] = array();
-            foreach ((array) $values AS $value) {
+            foreach ((array) $values as $value) {
                 $this->assertValidPropertyValue($data['type'], $value, $path);
                 $data['value'][] = $value;
             }
@@ -1481,7 +1505,7 @@ class Client extends BaseTransport implements
 
         if ($binaryData) {
             try {
-                foreach ($binaryData AS $idx => $binary) {
+                foreach ($binaryData as $idx => $binary) {
                     $grid = $this->db->getGridFS();
                     $grid->getMongoCollection()->storeBytes($binary, array(
                                                                           'path' => $path,
@@ -1561,7 +1585,46 @@ class Client extends BaseTransport implements
 
     public function registerNodeTypes($types, $allowUpdate)
     {
-        throw new NotImplementedException('Not implemented yet.');
+        $standartTypes = StandardNodeTypes::getNodeTypeData();
+        foreach ($types as $type) {
+            if (isset($standartTypes[$type->getName()])) {
+                throw new RepositoryException(sprintf('%s: can\'t reregister built-in node type.', $type->getName()));
+            }
+            if ($allowUpdate) {
+                $coll = $this->db->selectCollection(self::COLLNAME_TYPE_NODES);
+
+                $qb = $coll->createQueryBuilder()
+                    ->field('name')->equals(array($type->getName()));
+
+                $query = $qb->getQuery();
+                $result = $query->getIterator();
+
+                if ($result) {
+                    $qb = $coll->createQueryBuilder()
+                        ->field('name')->findAndRemove()->equals(array($type->getName()));
+                }
+            }
+
+            try {
+                $coll = $this->db->selectCollection(self::COLLNAME_TYPE_NODES);
+
+                $node_type = array(
+                    'name' => $type->getName(),
+                    'supertypes' => implode(' ', $type->getDeclaredSuperTypeNames()),
+                    'is_abstract' => $type->isAbstract() ? 1 : 0,
+                    'is_mixin' => $type->isMixin() ? 1 : 0,
+                    'queryable' => $type->isQueryable() ? 1 : 0,
+                    'orderable_child_nodes' => $type->hasOrderableChildNodes() ? 1 : 0,
+                    'primary_item' => $type->getPrimaryItemName(),
+                );
+
+                $coll->insert($node_type);
+            } catch (\Exception $e) {
+                throw new NodeTypeExistsException("Could not register node type with the name '".$type->getName()."'");
+            }
+
+            // Need 'phpcr_type_props' and 'phpcr_type_childs' collections
+        }
     }
 
     // private|protected helper methods //
@@ -1777,7 +1840,7 @@ class Client extends BaseTransport implements
     {
         if (!(strpos($path, '//') === false
             && strpos($path, '/../') === false
-            && preg_match('/^[\w{}\/#%&;:^+~*\[\]\. -]*$/iu', $path))
+            && preg_match('/^[\w{}\/#%&;:^+~*?¢\[\]\. -]*$/iu', $path))
         ) {
             throw new RepositoryException('Path is not well-formed or contains invalid characters: ' . $path);
         }
@@ -1796,10 +1859,9 @@ class Client extends BaseTransport implements
             SessionInterface::ACTION_ADD_NODE,
             SessionInterface::ACTION_READ,
             SessionInterface::ACTION_REMOVE,
-            SessionInterface::ACTION_SET_PROPERTY
+            SessionInterface::ACTION_SET_PROPERTY,
         );
     }
-
 
     protected function isWorkspaceAvailable()
     {
@@ -1830,5 +1892,24 @@ class Client extends BaseTransport implements
         }
 
         return (boolean) $booleanValue;
+    }
+
+    /**
+     * The transport must at least support JCR_SQL2 and JCR_JQOM.
+     *
+     * Note that QueryObjectModel::getStatement() returns the query as JCR_SQL2
+     * so it costs you nothing to support JQOM.
+     *
+     * @return array A list of query languages supported by this transport.
+     *
+     * @see QueryManagerInterface::getSupportedQueryLanguages
+     */
+    public function getSupportedQueryLanguages()
+    {
+        return array(
+            QueryInterface::JCR_SQL2,
+            QueryInterface::JCR_JQOM,
+            QueryInterface::SQL,
+        );
     }
 }

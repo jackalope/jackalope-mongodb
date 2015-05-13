@@ -17,8 +17,8 @@
     ],
     "require": {
         "php": ">=5.3.3",
-        "phpcr/phpcr": "~2.1.0",
-        "jackalope/jackalope": "~1.1.0",
+        "phpcr/phpcr": "~2.1.2",
+        "jackalope/jackalope": "~1.2.0",
         "doctrine/mongodb": "~1.1.0"
     },
     "provide": {

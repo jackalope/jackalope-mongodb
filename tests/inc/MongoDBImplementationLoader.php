@@ -23,22 +23,15 @@ class ImplementationLoader extends \PHPCR\Test\AbstractLoader
         parent::__construct('Jackalope\RepositoryFactoryMongoDB');
 
         $this->unsupportedChapters = array(
-            'Query',
             'Export',
-            'NodeTypeDiscovery',
-            'PermissionsAndCapabilities',
             'Import',
-            'Observation',
-            'ShareableNodes',
-            'Versioning',
-            'AccessControlManagement',
-            'Locking',
-            'LifecycleManagement',
             'NodeTypeManagement',
-            'RetentionAndHold',
-            'Transactions',
             'SameNameSiblings',
             'OrderableChildNodes',
+            'Observation',         // TODO: Transport does not support observation
+            'Versioning',          // TODO: Transport does not support versioning
+            'Locking',             // TODO: Transport does not support locking
+            'Transactions',        // TODO: Transport does not support transactions
         );
 
         $this->unsupportedCases = array(
@@ -57,30 +50,58 @@ class ImplementationLoader extends \PHPCR\Test\AbstractLoader
             'Writing\\ItemStateTest',
             'Writing\\LastModifiedTest',
             'Writing\\MixinCreatedTest',
+
+            'Query\\XPath\QueryOperationsTest',
+            'Query\\QuerySql2OperationsTest',
+            'Query\\RowIteratorTest',
+            'Query\\RowTest',
+            'Query\\Sql1\QueryOperationsTest',
         );
 
         $this->unsupportedTests = array(
-            'Connecting\\RepositoryTest::testLoginException', //TODO: figure out what would be invalid credentials
-            //'Connecting\\RepositoryTest::testNoLogin',
-            //'Connecting\\RepositoryTest::testNoLoginAndWorkspace',
+            'Connecting\\RepositoryTest::testLoginException',                 // TODO: figure out what would be invalid credentials
             'Connecting\\WorkspaceReadMethodsTest::testGetQueryManager',
 
-            'Reading\\SessionReadMethodsTest::testImpersonate', //TODO: Check if that's implemented in newer jackrabbit versions.
+            'Reading\\SessionReadMethodsTest::testImpersonate',               // TODO: Check if that's implemented in newer jackrabbit versions.
             'Reading\\SessionNamespaceRemappingTest::testSetNamespacePrefix',
-            'Reading\\NodeReadMethodsTest::testGetSharedSetUnreferenced', // TODO: should this be moved to 14_ShareableNodes
+            'Reading\\NodeReadMethodsTest::testGetSharedSetUnreferenced',     // TODO: should this be moved to 14_ShareableNodes
 
-            // TODO MongoDB specific fixer-loading problem with binaries
-            'Reading\\BinaryReadMethodsTest::testReadBinaryValue',
+            'Reading\\BinaryReadMethodsTest::testReadBinaryValue',            // TODO MongoDB specific fixer-loading problem with binaries
             'Reading\\BinaryReadMethodsTest::testIterateBinaryValue',
             'Reading\\BinaryReadMethodsTest::testReadBinaryValueAsString',
             'Reading\\BinaryReadMethodsTest::testReadBinaryValues',
             'Reading\\BinaryReadMethodsTest::testReadBinaryValuesAsString',
+            'Reading\\BinaryReadMethodsTest::testReadBinaryPathEncoding',
+            'Reading\\BinaryReadMethodsTest::testReadBinaryPathTrailingQuestionmark',
             'Reading\\PropertyReadMethodsTest::testGetBinary',
             'Reading\\PropertyReadMethodsTest::testGetBinaryMulti',
 
-            'Query\QueryManagerTest::testGetQuery',
-            'Query\QueryManagerTest::testGetQueryInvalid',
+            'Query\\QueryManagerTest::testGetQuery',
+            'Query\\QueryManagerTest::testGetQueryInvalid',
             'Query\\NodeViewTest::testSeekable',
+            'Query\\NodeViewTest::testSeekableOutOfBounds',
+            'Query\\QueryObjectSql2Test::testGetStoredQueryPath',
+            'Query\\QueryObjectSql2Test::testExecuteLimit',
+            'Query\\QueryObjectSql2Test::testExecuteOffset',
+            'Query\\QueryObjectSql2Test::testExecuteLimitAndOffset',
+            'Query\\QueryResultsTest::testGetColumnNames',
+            'Query\\QueryResultsTest::testGetAliasColumnNames',
+            'Query\\QueryResultsTest::testGetSelectorNames',
+            'Query\\QueryResultsTest::testGetNodes',
+            'Query\\QueryResultsTest::testIterateOverQueryResult',
+            'Query\\QueryResultsTest::testReadPropertyContentFromResults',
+            'Query\\QueryResultsTest::testCompareNumberFields',
+            'Query\\QueryResultsTest::testCompareStringFields',
+            'Query\\QueryResultsTest::testBooleanField',
+            'Query\\CharacterTest::testPropertyWithBackslash',
+            'Query\\CharacterTest::testPropertyWithDoubleBackslash',
+            'Query\\CharacterTest::testPropertyWithQuotes',
+            'Query\\CharacterTest::testPropertyWithQuotesAndBackslash',
+            'Query\\CharacterTest::testQueryWithAmpersand',
+            'Query\\NodeViewTest::testIterator',
+            'Query\\QueryObjectQOMTest::testExecute',
+            'Query\\QueryObjectQOMTest::testExecuteInvalid',
+
 
             'Writing\\NamespaceRegistryTest::testRegisterUnregisterNamespace',
 
@@ -88,6 +109,8 @@ class ImplementationLoader extends \PHPCR\Test\AbstractLoader
             'WorkspaceManagement\\WorkspaceManagementTest::testCreateWorkspaceWithInvalidSource',
 
             'PhpcrUtils\\PurgeTest::testPurge',
+
+            'PermissionsAndCapabilities\\PermissionReadTest::testCheckPermissionAccessControlException',
         );
 
     }
