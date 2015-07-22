@@ -10,6 +10,8 @@ php:
 services:
   - mongodb
 
+sudo: false
+
 before_script:
   - phpenv config-add tests/travis-ci-config.ini
   - composer install --optimize-autoloader --dev
