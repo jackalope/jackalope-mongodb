@@ -112,7 +112,6 @@ class ImplementationLoader extends \PHPCR\Test\AbstractLoader
 
             'PermissionsAndCapabilities\\PermissionReadTest::testCheckPermissionAccessControlException',
         );
-
     }
 
     /**

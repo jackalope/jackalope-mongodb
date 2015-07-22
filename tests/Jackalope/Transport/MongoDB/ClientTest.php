@@ -46,5 +46,4 @@ class ClientTest extends MongoDBTestCase
             array(array(), false),
         );
     }
-
 }
