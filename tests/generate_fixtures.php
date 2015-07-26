@@ -36,8 +36,7 @@ $iterator = new RecursiveIteratorIterator($srcRdi);
 
 libxml_use_internal_errors(true);
 
-foreach ($iterator AS $file) {
-
+foreach ($iterator as $file) {
     if (!$file->isFile() || 'xml' !== $file->getExtension()) {
         continue;
     }
@@ -60,8 +59,7 @@ foreach ($iterator AS $file) {
     $nodes = $srcDom->getElementsByTagNameNS('http://www.jcp.org/jcr/sv/1.0', 'node');
     $seenPaths = array();
     if ($nodes->length > 0) {
-
-        foreach ($nodes AS $node) {
+        foreach ($nodes as $node) {
             /* @var $node DOMElement */
             $parent = $node;
             $path = '';
@@ -74,12 +72,12 @@ foreach ($iterator AS $file) {
 
             $uuid = \PHPCR\Util\UUIDHelper::generateUUID();
             $attributes = array();
-            foreach ($node->childNodes AS $child) {
+            foreach ($node->childNodes as $child) {
                 if ($child instanceof DOMElement && $child->tagName == 'sv:property') {
                     $name = $child->getAttributeNS('http://www.jcp.org/jcr/sv/1.0', 'name');
 
                     $value = array();
-                    foreach ($child->getElementsByTagNameNS('http://www.jcp.org/jcr/sv/1.0', 'value') AS $nodeValue) {
+                    foreach ($child->getElementsByTagNameNS('http://www.jcp.org/jcr/sv/1.0', 'value') as $nodeValue) {
                         $value[] = $nodeValue->nodeValue;
                     }
 
@@ -112,7 +110,6 @@ foreach ($iterator AS $file) {
                                         'date'     => array('$date' => $datetime->getTimestamp() * 1000),
                                         'timezone' => $datetime->getTimezone()->getName()
                                     );
-
                                 }
                                 $value = $dates;
                                 break;
@@ -146,9 +143,8 @@ foreach ($iterator AS $file) {
             $pos++;
         }
     } else {
-
         $nodes = $srcDom->getElementsByTagName('*');
-        foreach ($nodes AS $node) {
+        foreach ($nodes as $node) {
             if ($node instanceof DOMElement) {
                 $parent = $node;
                 $path = '';
@@ -160,7 +156,7 @@ foreach ($iterator AS $file) {
                 $uuid = \PHPCR\Util\UUIDHelper::generateUUID();
                 $type = 'nt:unstructured';
                 $attributes = array();
-                foreach ($node->attributes AS $attr) {
+                foreach ($node->attributes as $attr) {
                     $name = ($attr->prefix) ? $attr->prefix . ':' . $attr->name : $attr->name;
 
                     if ($name == 'jcr:uuid') {
